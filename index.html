@@ -1,4 +1,117 @@
-LAboratorium TVOriveho MYslenia v.2
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exocortex | Vedomostná báza</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #2c3e50;
+            --link-color: #2980b9;
+            --container-bg: #ffffff;
+            --border-color: #e0e0e0;
+        }
 
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --link-color: #64b5f6;
+            --container-bg: #1e1e1e;
+            --border-color: #333333;
+        }
 
-<a href="./uvahy/">Moje úvahy a texty</a>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--container-bg);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 { margin: 0; font-size: 1.8em; }
+        
+        a { color: var(--link-color); text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
+
+        ul.hub-list { list-style-type: none; padding: 0; }
+        ul.hub-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        ul.hub-list li:last-child { border-bottom: none; }
+
+        .theme-switch {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-switch:hover { background: var(--border-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Exocortex - Vedomostný Hub</h1>
+        <button class="theme-switch" id="theme-toggle">🌓 Režim</button>
+    </div>
+
+    <main>
+        <p>Informačná architektúra a otvorené štruktúry poznania.</p>
+        <ul class="hub-list">
+            <li><a href="./uvahy/">Moje úvahy a texty &rarr;</a></li>
+        </ul>
+    </main>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('theme-toggle');
+    
+    // Inicializacia temy z localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    // Prepínanie
+    toggleBtn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+</script>
+
+</body>
+</html>
