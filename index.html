@@ -40,6 +40,9 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
             transition: background-color 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 70vh;
         }
 
         .header {
@@ -80,6 +83,8 @@
         a { color: var(--link-color); text-decoration: none; font-weight: 500; }
         a:hover { text-decoration: underline; }
 
+        main { flex-grow: 1; }
+
         ul.hub-list { list-style-type: none; padding: 0; }
         ul.hub-list li {
             padding: 15px 0;
@@ -87,13 +92,24 @@
         }
         ul.hub-list li:last-child { border-bottom: none; }
 
+        .footer-quote {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.95em;
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+        }
+        [data-theme="dark"] .footer-quote { color: #a1a1aa; }
+
         /* Logika skryvania podla jazyka */
         .lang-content { display: none; }
         html[lang="sk"] .lang-content[data-lang="sk"] { display: block; }
         html[lang="en"] .lang-content[data-lang="en"] { display: block; }
         html[lang="hu"] .lang-content[data-lang="hu"] { display: block; }
         
-        /* Pre inline elementy (napríklad v odkazoch) */
+        /* Pre inline elementy */
         html[lang="sk"] span.lang-content[data-lang="sk"] { display: inline; }
         html[lang="en"] span.lang-content[data-lang="en"] { display: inline; }
         html[lang="hu"] span.lang-content[data-lang="hu"] { display: inline; }
@@ -139,10 +155,15 @@
             </li>
         </ul>
     </main>
+
+    <div class="footer-quote">
+        <span class="lang-content" data-lang="sk">Tvorivosť je jedna z prirodzených vlastností človeka. Mnoho ľudí ale umrie bez toho, aby to objavilo, ale vo forme "zdravého sedliackeho rozumu" ho mnohí používajú.</span>
+        <span class="lang-content" data-lang="en">Creativity is one of the natural human traits. Many people die without discovering it, but many use it in the form of "common sense".</span>
+        <span class="lang-content" data-lang="hu">A kreativitás az ember egyik természetes tulajdonsága. Sokan úgy halnak meg, hogy ezt nem fedezik fel, de "józan paraszti ész" formájában sokan használják.</span>
+    </div>
 </div>
 
 <script>
-    // --- 1. Logika Témy (Exosystém) ---
     const toggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('theme');
     
@@ -159,18 +180,15 @@
         localStorage.setItem('theme', newTheme);
     });
 
-    // --- 2. Logika Jazyka ---
     function setLang(lang) {
         document.documentElement.setAttribute('lang', lang);
         localStorage.setItem('lang', lang);
         
-        // Zvýraznenie aktívneho tlačidla
         document.querySelectorAll('.controls .btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById('btn-' + lang).classList.add('active');
     }
 
-    // Inicializácia jazyka pri načítaní
-    const savedLang = localStorage.getItem('lang') || 'sk'; // Predvolený je SK
+    const savedLang = localStorage.getItem('lang') || 'sk';
     setLang(savedLang);
 </script>
 
