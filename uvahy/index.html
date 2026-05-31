@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Úvahy | Exocortex</title>
+    <title>Úvahy | LATVOMY</title>
     <style>
         :root {
             --bg-color: #f5f5f5;
@@ -42,21 +42,44 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
-        .header {
+        .top-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header {
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 15px;
             margin-bottom: 30px;
         }
-
+        
         h1 { margin: 0; font-size: 1.8em; }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover, .btn.active { 
+            background: var(--border-color); 
+            font-weight: bold;
+        }
         
         a { color: var(--link-color); text-decoration: none; font-weight: 500; }
         a:hover { text-decoration: underline; }
-
-        .nav-back { display: inline-block; margin-bottom: 20px; font-size: 0.9em; }
 
         ul.article-list { list-style-type: none; padding: 0; }
         ul.article-list li {
@@ -67,35 +90,51 @@
         }
         ul.article-list li:last-child { border-bottom: none; }
 
-        .theme-switch {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s ease;
-        }
+        /* Logika skryvania podla jazyka */
+        .lang-content { display: none; }
+        html[lang="sk"] .lang-content[data-lang="sk"] { display: block; }
+        html[lang="en"] .lang-content[data-lang="en"] { display: block; }
+        html[lang="hu"] .lang-content[data-lang="hu"] { display: block; }
         
-        .theme-switch:hover { background: var(--border-color); }
+        html[lang="sk"] span.lang-content[data-lang="sk"] { display: inline; }
+        html[lang="en"] span.lang-content[data-lang="en"] { display: inline; }
+        html[lang="hu"] span.lang-content[data-lang="hu"] { display: inline; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="../" class="nav-back">&larr; Späť do hlavného uzla</a>
+    <div class="top-nav">
+        <a href="../" class="nav-back">
+            <span class="lang-content" data-lang="sk">&larr; Späť do hlavného uzla</span>
+            <span class="lang-content" data-lang="en">&larr; Back to main node</span>
+            <span class="lang-content" data-lang="hu">&larr; Vissza a fő csomóponthoz</span>
+        </a>
+        <div class="controls">
+            <button class="btn" onclick="setLang('sk')" id="btn-sk">SK</button>
+            <button class="btn" onclick="setLang('en')" id="btn-en">EN</button>
+            <button class="btn" onclick="setLang('hu')" id="btn-hu">HU</button>
+            <button class="btn" id="theme-toggle">🌓</button>
+        </div>
+    </div>
     
     <div class="header">
-        <h1>Rôzne úvahy</h1>
-        <button class="theme-switch" id="theme-toggle">🌓 Režim</button>
+        <h1>
+            <span class="lang-content" data-lang="sk">Rôzne úvahy</span>
+            <span class="lang-content" data-lang="en">Various thoughts</span>
+            <span class="lang-content" data-lang="hu">Különféle gondolatok</span>
+        </h1>
     </div>
 
     <main>
         <ul class="article-list">
             <li>
-                <span>1. Končia sa lineárne dejiny?</span>
-                <a href="./linear_history_v1.html">[ verzia 1.0 ]</a>
+                <span>
+                    <span class="lang-content" data-lang="sk">1. Končia sa lineárne dejiny?</span>
+                    <span class="lang-content" data-lang="en">1. Is linear history ending?</span>
+                    <span class="lang-content" data-lang="hu">1. Véget ér a lineáris történelem?</span>
+                </span>
+                <a href="./linear_history_v1.html">[ v1.0 ]</a>
             </li>
         </ul>
     </main>
@@ -103,8 +142,8 @@
 
 <script>
     const toggleBtn = document.getElementById('theme-toggle');
-    
     const savedTheme = localStorage.getItem('theme');
+    
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
     } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -117,6 +156,17 @@
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     });
+
+    function setLang(lang) {
+        document.documentElement.setAttribute('lang', lang);
+        localStorage.setItem('lang', lang);
+        
+        document.querySelectorAll('.controls .btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn-' + lang).classList.add('active');
+    }
+
+    const savedLang = localStorage.getItem('lang') || 'sk';
+    setLang(savedLang);
 </script>
 
 </body>
