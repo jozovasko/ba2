@@ -3,347 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Končia sa lineárne dejiny?</title>
+    <title>Končia sa lineárne dejiny? | LATVOMY</title>
     <style>
         :root {
-            --bg-color: #0f111a;
-            --text-color: #e4e4e7;
-            --accent-color: #0ea5e9;
-            --accent-hover: #38bdf8;
-            --accent-deep: #e11d48;
-            --card-bg: #1e2133;
-            --border-color: #333852;
-            --perex-dim: #71717a;
-            --details-bg: rgba(255, 255, 255, 0.02);
+            --bg-color: #f5f5f5;
+            --text-color: #2c3e50;
+            --link-color: #2980b9;
+            --container-bg: #ffffff;
+            --border-color: #e0e0e0;
         }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --link-color: #64b5f6;
+            --container-bg: #1e1e1e;
+            --border-color: #333333;
+        }
+
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.7;
+            line-height: 1.6;
             margin: 0;
             padding: 20px;
-            box-sizing: border-box;
-            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
-        /* Layout pre Split-screen */
-        #app-wrapper { max-width: 1600px; margin: 0 auto; display: flex; gap: 20px; transition: all 0.4s ease; align-items: flex-start; }
-        .main-container { flex: 1; min-width: 0; transition: all 0.4s ease; }
 
-        /* Bočný panel (Split screen) */
-        #side-panel {
-            width: 0; opacity: 0; visibility: hidden; background: var(--card-bg);
-            border: 1px solid var(--accent-color); border-radius: 8px; transition: all 0.4s ease;
-            display: flex; flex-direction: column; position: sticky; top: 20px;
-            max-height: calc(100vh - 40px); overflow-y: auto;
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--container-bg);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        #app-wrapper.split-active #side-panel { width: 450px; opacity: 1; visibility: visible; padding: 25px; }
-        #side-panel h3 { color: var(--accent-color); margin-top: 0; font-size: 1.4rem;}
-        #side-panel p { font-size: 1.05rem; color: #cbd5e1; line-height: 1.6; }
-        .external-btn {
-            display: inline-block; background-color: var(--accent-color); color: #fff;
-            text-decoration: none; text-align: center; padding: 12px 15px; border-radius: 6px;
-            font-weight: bold; margin-top: 20px; transition: background-color 0.2s;
-        }
-        .external-btn:hover { background-color: var(--accent-hover); }
-        .close-panel-btn {
-            background: transparent; border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 8px 12px; border-radius: 4px; cursor: pointer; align-self: flex-end; margin-bottom: 15px;
-        }
-        .close-panel-btn:hover { border-color: var(--accent-deep); color: var(--accent-deep); }
 
-        header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-        h1.main-title { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--accent-color); margin-bottom: 20px; text-align: center; }
-        
-        .perex-container { display: flex; flex-direction: column; gap: 10px; max-width: 1000px; margin: 0 auto; }
-        .perex-link {
-            font-size: 1.05rem; font-style: italic; color: var(--perex-dim); text-decoration: none;
-            padding: 12px 18px; border-left: 4px solid transparent; cursor: pointer;
-            background: rgba(30, 33, 51, 0.4); border-radius: 0 6px 6px 0;
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
         }
-        .perex-link.active { color: var(--text-color); border-left: 4px solid var(--accent-color); background: var(--card-bg); }
-        
-        .content-area { background: var(--card-bg); padding: clamp(20px, 4vw, 40px); border-radius: 8px; border: 1px solid var(--border-color); font-size: 1.1rem; }
-        .lang-section { display: none; animation: fadeIn 0.4s ease; }
-        .lang-section.active { display: block; }
-        
-        h2 { color: var(--accent-hover); font-size: 1.7rem; margin-top: 2em; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-        
-        /* --- Tooltip a linky --- */
-        .wiki-link {
-            color: var(--accent-hover); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px;
-            cursor: pointer; position: relative; font-weight: 600; padding: 0 2px;
+
+        .controls {
+            display: flex;
+            gap: 10px;
         }
-        .wiki-link:hover { color: #fff; background: rgba(14, 165, 233, 0.1); border-radius: 4px; }
-        .wiki-link::after {
-            content: attr(data-summary); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
-            width: 280px; background: #0f111a; border: 1px solid var(--accent-color); padding: 12px; border-radius: 6px;
-            font-size: 0.95rem; color: #e4e4e7; font-weight: normal; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            opacity: 0; visibility: hidden; transition: all 0.2s ease; pointer-events: none; line-height: 1.4;
+
+        .btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
         }
-        .wiki-link:hover::after { opacity: 1; visibility: visible; bottom: 110%; }
-
-        /* --- Trojúrovňové detaily --- */
-        details { margin: 25px 0; background: var(--details-bg); border-radius: 6px; padding: 15px 20px; border-left: 4px solid var(--border-color); transition: all 0.3s ease; }
-        details.level-2[open] { border-left-color: var(--accent-color); background: rgba(14, 165, 233, 0.03); padding-bottom: 60px; position: relative; }
-        details.level-3 { border-left: 4px solid var(--accent-deep); background: rgba(225, 29, 72, 0.03); margin-top: 20px; }
-        details.level-3[open] { border-left-color: #fb7185; background: rgba(225, 29, 72, 0.06); padding-bottom: 50px; position: relative;}
         
-        summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; font-size: 1.15rem; }
-        details.level-2 > summary { color: var(--accent-hover); }
-        details.level-3 > summary { color: #fb7185; font-size: 1.05rem;}
-        summary::-webkit-details-marker { display: none; }
-        summary::before { content: '►'; font-size: 0.8em; margin-right: 12px; transition: transform 0.2s; }
-        details[open] > summary::before { transform: rotate(90deg); }
-        .details-content { margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 20px; }
-
-        /* Tlačidlá na zatvorenie */
-        .close-btn {
-            position: absolute; bottom: 15px; right: 20px; background: transparent;
-            border: 1px solid; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+        .btn:hover, .btn.active { 
+            background: var(--border-color); 
+            font-weight: bold;
         }
-        details.level-2 > .close-btn { color: var(--accent-hover); border-color: var(--accent-hover); }
-        details.level-2 > .close-btn:hover { background: var(--accent-color); color: #fff; }
-        details.level-3 > .close-btn { color: #fb7185; border-color: #fb7185; }
-        details.level-3 > .close-btn:hover { background: var(--accent-deep); color: #fff; }
-
-        /* Vektorové grafy */
-        .graph-container { margin: 30px 0; padding: 25px; background: #151722; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
-        svg { width: 100%; max-width: 650px; height: auto; }
         
-        .footer-note { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.95rem; color: #a1a1aa; text-align: right; font-style: italic; }
+        a { color: var(--link-color); text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @media (max-width: 1024px) {
-            #app-wrapper.split-active { flex-direction: column; }
-            #app-wrapper.split-active #side-panel { width: 100%; position: static; max-height: none; }
+        /* Logika zobrazenia podľa jazyka */
+        .lang-content { display: none; }
+        html[lang="sk"] .lang-content[data-lang="sk"] { display: block; }
+        html[lang="en"] .lang-content[data-lang="en"] { display: block; }
+        html[lang="hu"] .lang-content[data-lang="hu"] { display: block; }
+        
+        html[lang="sk"] span.lang-content[data-lang="sk"] { display: inline; }
+        html[lang="en"] span.lang-content[data-lang="en"] { display: inline; }
+        html[lang="hu"] span.lang-content[data-lang="hu"] { display: inline; }
+
+        .article-body {
+            margin-top: 20px;
+            text-align: justify;
         }
     </style>
 </head>
 <body>
 
-<div id="app-wrapper">
-    <div class="main-container">
-        <header>
-            <h1 class="main-title">Končia sa lineárne dejiny?</h1>
-            <div class="perex-container">
-                <a onclick="switchLang('sk')" id="perex-sk" class="perex-link active"><strong>[SK]</strong> Od šokovej terapie k exponenciálnemu rastu AI v morálne stagnujúcej spoločnosti sledujeme kolaps zastaraného operačného systému. Aká je architektúra únikového východu?</a>
-                <a onclick="switchLang('en')" id="perex-en" class="perex-link"><strong>[EN]</strong> From shock therapy to the exponential growth of AI, we are witnessing the collapse of an obsolete operating system. What is the architecture of the escape hatch?</a>
-                <a onclick="switchLang('hu')" id="perex-hu" class="perex-link"><strong>[HU]</strong> A sokkterápiától az MI exponenciális növekedéséig egy elavult operációs rendszer összeomlásának vagyunk tanúi. Mi a vészkijárat építészete?</a>
-            </div>
-        </header>
-
-        <div class="content-area">
-            
-            <!-- ================= SK VERZIA ================= -->
-            <div id="content-sk" class="lang-section active">
-                
-                <h2>1. Koniec lineárnej ilúzie a rozdelenie sveta</h2>
-                <p>Príbeh globálnej transformácie možno personifikovať na trajektórii <a href="https://sk.wikipedia.org/wiki/Jeffrey_Sachs" class="wiki-link" data-title="Jeffrey Sachs" data-summary="Americký ekonóm, pôvodne známy ako architekt 'šokovej terapie' pri prechode na voľný trh. Dnes kritik americkej zahraničnej politiky a obhajca multipolarity." onclick="openSidePanel(event, this)">Jeffreyho Sachsa</a>. V 90. rokoch pôsobil ako nekompromisný architekt ekonomickej transformácie. Dnes však, vo svojich listoch nemeckému kancelárovi, apeluje na zastavenie militarizácie a volá po diplomatických kompromisoch s nezápadnými veľmocami. Architekti globalizácie zistili, že ich stavba padá, pretože naivne uverili v lineárny koniec histórie.</p>
-
-                <div class="graph-container">
-                    <!-- Graf 1: Jalta - Malta - Nová Jalta -->
-                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                        <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" /></marker></defs>
-                        <!-- Os času -->
-                        <line x1="50" y1="100" x2="550" y2="100" stroke="#333852" stroke-width="2" />
-                        <!-- Jalta -->
-                        <circle cx="100" cy="100" r="6" fill="#e11d48" />
-                        <text x="100" y="80" fill="#e4e4e7" font-size="14" text-anchor="middle">Jalta (1945)</text>
-                        <text x="100" y="125" fill="#a1a1aa" font-size="11" text-anchor="middle">Sféry vplyvu</text>
-                        <!-- Malta -->
-                        <circle cx="300" cy="100" r="6" fill="#0ea5e9" />
-                        <text x="300" y="80" fill="#e4e4e7" font-size="14" text-anchor="middle">Malta (1989)</text>
-                        <text x="300" y="125" fill="#a1a1aa" font-size="11" text-anchor="middle">Unifikácia</text>
-                        <!-- Nová Jalta (Bifurkácia) -->
-                        <path d="M 300 100 Q 400 30 500 30" fill="none" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arrow)" />
-                        <path d="M 300 100 Q 400 170 500 170" fill="none" stroke="#e11d48" stroke-width="3" marker-end="url(#arrow)" />
-                        <text x="500" y="20" fill="#0ea5e9" font-size="14" text-anchor="middle">Západný blok</text>
-                        <text x="500" y="190" fill="#e11d48" font-size="14" text-anchor="middle">Nová Jalta (Multipolarita)</text>
-                    </svg>
-                </div>
-
-                <details class="level-2">
-                    <summary>Úroveň 2: Systémový omyl a asymetrický realizmus</summary>
-                    <div class="details-content">
-                        <p>Západné elity urobili po roku 1989 zásadnú chybu. Uverili, že import západného ekonomického hardvéru automaticky zmení aj kultúrny softvér v Rusku či Číne. Aplikovali lineárne myslenie na nelineárny živý systém. Globálna <a href="https://sk.wikipedia.org/wiki/Hegem%C3%B3nia" class="wiki-link" data-title="Hegemónia" data-summary="Nadvláda, politická a vojenská dominancia jedného štátu (alebo bloku) nad ostatnými, udávajúca pravidlá globálneho systému." onclick="openSidePanel(event, this)">hegemónia</a> Západu sa tak roztrieštila o kultúrne a historické špecifiká iných civilizácií.</p>
-                        
-                        <details class="level-3">
-                            <summary>Úroveň 3: Historická symetria Jalty a Malty</summary>
-                            <div class="details-content">
-                                <p>Ak bola <a href="https://sk.wikipedia.org/wiki/Jaltsk%C3%A1_konferencia" class="wiki-link" data-title="Jaltská konferencia (1945)" data-summary="Stretnutie veľmocí, kde si cynicky, ale pragmaticky rozdelili svet, čo paradoxne prinieslo dlhodobú štrukturálnu stabilitu Studenej vojny." onclick="openSidePanel(event, this)">Jaltská konferencia</a> v roku 1945 pragmatickým rozdelením sfér vplyvu a <a href="https://sk.wikipedia.org/wiki/Maltsk%C3%A1_konferencia_(1989)" class="wiki-link" data-title="Maltská konferencia (1989)" data-summary="Stretnutie symbolicky ukončujúce Studenú vojnu. Deklarovalo svet bez sfér vplyvu, čo viedlo k 30 rokom západnej globalizácie." onclick="openSidePanel(event, this)">Malta (1989)</a> ilúziou jedného racionálneho sveta, dnešok je vytriezvením. Systém s jediným riadiacim pólom narástol do takej miery komplexity, že ho Washington nedokázal udržať. Nastupuje asymetrický realizmus, kde starý univerzálny kód prestal platiť a nové inštitúcie (ako BRICS) si píšu vlastné protokoly.</p>
-                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
-                            </div>
-                        </details>
-                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
-                    </div>
-                </details>
-
-                <h2>2. Samsarické dýchanie impérií</h2>
-                <p>To, čo dnes prežívame, je vyvrcholenie makrocyklov. Svetová ekonomika pulzuje vo fázach pripomínajúcich dýchanie – expanzia a integrácia sa strieda s fázou narastajúcej <a href="https://sk.wikipedia.org/wiki/Entropia_(sociol%C3%B3gia)" class="wiki-link" data-title="Sociálna entropia" data-summary="Miera neusporiadanosti, chaosu a rozpadu vnútornej štruktúry a väzieb v sociálnom alebo ekonomickom systéme." onclick="openSidePanel(event, this)">entropie</a>. Každý hegemón sa časom preťaží, pretože uprednostní krátkodobý finančný zisk (finančnú saturáciu) pred udržateľnou službou vlastnej priemyselnej základni.</p>
-                
-                <div class="graph-container">
-                    <!-- Graf 2: Samsarické dýchanie (Sínusoida) -->
-                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 50 100 Q 150 -50 250 100 T 450 100" fill="none" stroke="#333852" stroke-width="2" stroke-dasharray="5" />
-                        <path d="M 50 100 Q 150 -50 250 100" fill="none" stroke="#0ea5e9" stroke-width="4" />
-                        <path d="M 250 100 Q 350 250 450 100" fill="none" stroke="#e11d48" stroke-width="4" />
-                        <text x="150" y="30" fill="#0ea5e9" font-size="14" text-anchor="middle">Nádych (Expanzia a Zisk)</text>
-                        <text x="350" y="180" fill="#e11d48" font-size="14" text-anchor="middle">Výdych (Entropia a Úpadok)</text>
-                        <line x1="50" y1="100" x2="550" y2="100" stroke="#e4e4e7" stroke-width="1" />
-                    </svg>
-                </div>
-
-                <details class="level-2">
-                    <summary>Úroveň 2: Anatómia umelého finančného nádychu</summary>
-                    <div class="details-content">
-                        <p>Krásnym príkladom tohto dýchania je <a href="https://sk.wikipedia.org/wiki/Dawesov_pl%C3%A1n" class="wiki-link" data-title="Dawesov plán (1924)" data-summary="Americký finančný plán, ktorý nalial obrovské úvery do Nemecka po 1. svetovej vojne. Umelo stabilizoval systém, ktorý po stiahnutí úverov skolaboval." onclick="openSidePanel(event, this)">Dawesov plán</a> v medzivojnovom Nemecku. Wall Street vytvorila umelý finančný kruh, ktorému chýbala reálna ekonomická kotva (nemecká produkcia nestačila kryť úvery). Výsledkom bola katastrofa, naštartovanie radikalizmu a následná menová smrť.</p>
-                        
-                        <details class="level-3">
-                            <summary>Úroveň 3: Offshoring a fiktívny kapitál</summary>
-                            <div class="details-content">
-                                <p>Dnešná globalizácia funguje na podobnom defektnom kóde. Západ masívne presunul ("offshoroval") svoj skutočný priemysel do Ázie kvôli korporátnym maržiam a domácu ekonomiku založil na službách a <a href="https://sk.wikipedia.org/wiki/Fikt%C3%ADvny_kapit%C3%A1l" class="wiki-link" data-title="Fiktívny kapitál" data-summary="Hodnota, ktorá nemá krytie v reálnej materiálnej výrobe (deriváty, nafúknuté akcie), predstavuje len nárok na budúce (neisté) zisky." onclick="openSidePanel(event, this)">fiktívnom kapitáli</a>. Súčasná harmonizácia zisku a služby si bude vyžadovať návrat k lokálnej výrobe. To však prinesie obrovské straty a odpísanie znehodnoteného finančného kapitálu – inak systému hrozí pád do novej <a href="https://sk.wikipedia.org/wiki/Hyperinfl%C3%A1cia" class="wiki-link" data-title="Hyperinflácia" data-summary="Nekontrolovateľné a extrémne rýchle znehodnotenie meny, zvyčajne spôsobené tlačou peňazí nekrytých reálnou produkciou." onclick="openSidePanel(event, this)">hyperinflácie</a>.</p>
-                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
-                            </div>
-                        </details>
-                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
-                    </div>
-                </details>
-
-                <h2>3. Exponenciálny klin a algoritmická degradácia</h2>
-                <p>Do tohto pulzovania vstúpil bezprecedentný faktor: asymetria rastu. Zatiaľ čo vývoj AI a automatizácie naberá exponenciálne tempo, morálna výbava spoločnosti je vplyvom digitálneho <a href="https://sk.wikipedia.org/wiki/Panoptikum_(architekt%C3%BAra)" class="wiki-link" data-title="Panoptikum" data-summary="Architektonický koncept väzenia (Jeremy Bentham), kde dozorca vidí všetkých väzňov, no oni nevidia jeho. Dnes metafora pre digitálny dohľad a sociálne siete." onclick="openSidePanel(event, this)">panoptika</a> sociálnych sietí degradovaná. Blížime sa k momentu systémovej <a href="https://sk.wikipedia.org/wiki/Te%C3%B3ria_bifurk%C3%A1ci%C3%AD" class="wiki-link" data-title="Bifurkácia (systémová teória)" data-summary="Kritický bod vo vývoji nelineárneho systému, kde aj malá zmena parametrov vedie k náhlemu a nepredvídateľnému rozštiepeniu správania celého systému." onclick="openSidePanel(event, this)">bifurkácie</a>, kedy paleolitické inštinkty dostali do rúk digitálny jadrový kufrík.</p>
-
-                <div class="graph-container">
-                    <!-- Graf 3: Exponenciálny rast vs Morálka -->
-                    <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Osi -->
-                        <line x1="50" y1="200" x2="550" y2="200" stroke="#333852" stroke-width="2" />
-                        <line x1="50" y1="200" x2="50" y2="20" stroke="#333852" stroke-width="2" />
-                        <!-- Exponenciálna Technológia -->
-                        <path d="M 50 180 Q 300 170 500 30" fill="none" stroke="#0ea5e9" stroke-width="4" />
-                        <text x="510" y="40" fill="#0ea5e9" font-size="14">Technológia (AI)</text>
-                        <!-- Lineárna/Klesajúca Morálka -->
-                        <path d="M 50 150 L 500 190" fill="none" stroke="#e11d48" stroke-width="4" stroke-dasharray="6" />
-                        <text x="510" y="190" fill="#e11d48" font-size="14">Morálka davu</text>
-                        <!-- Bifurkačný bod (Klin) -->
-                        <circle cx="280" cy="165" r="7" fill="#fbbf24" />
-                        <text x="280" y="145" fill="#fbbf24" font-size="14" text-anchor="middle">Singularita krehkosti</text>
-                    </svg>
-                </div>
-
-                <details class="level-2">
-                    <summary>Úroveň 2: Oddelenie intelektu od cnosti</summary>
-                    <div class="details-content">
-                        <p>Moderný svet v mene efektivity oddelil intelektuálny výkon od morálnej zrelosti. Staré historické školy to robili presne opačne – do vzdelávania vkladali tvrdé "hardvérové filtre", pretože chápali informáciu ako deštrukčnú zbraň.</p>
-                        
-                        <details class="level-3">
-                            <summary>Úroveň 3: Hardvérové filtre historických škôl</summary>
-                            <div class="details-content">
-                                <ul>
-                                    <li><strong>Hermetici a Alchymisti:</strong> Proces premeny hmoty (<a href="https://sk.wikipedia.org/wiki/Transmut%C3%A1cia_(alch%C3%BDmia)" class="wiki-link" data-title="Transmutácia" data-summary="V alchýmii nielen fyzická premena olova na zlato, ale primárne metafora pre duchovné očistenie a premenu samotného laboranta." onclick="openSidePanel(event, this)">transmutácia</a>) vyžadoval askézu a potlačenie ega (<em>Solve et Coagula</em>). Ak bol adept hnaný chamtivosťou, proces v banke zlyhal.</li>
-                                    <li><strong>Mníšske rády:</strong> Kresťanská mystika chránila archívy heslom <a href="https://sk.wikipedia.org/wiki/Benedikt_z_Nursie" class="wiki-link" data-title="Ora et labora" data-summary="Mníšske pravidlo sv. Benedikta. Prístup ku knihám a vedomostiam si vyžadoval pokoru, ktorá sa získavala ťažkou fyzickou prácou." onclick="openSidePanel(event, this)">Ora et labora</a>. Prístup k poznaniu si študent musel odpracovať ťažkou fyzickou prácou, čím si skrotil pudy.</li>
-                                    <li><strong>Kabala:</strong> Hlboké štúdium skrytých princípov (<em>Sod</em>) bolo prístupné až po 40. roku života pre ženatých jedincov. Záväzok rodine slúžil ako psychologická kotva proti <a href="https://sk.wikipedia.org/wiki/Technologick%C3%A1_singularita" class="wiki-link" data-title="Singularita (psychologická deštrukcia)" data-summary="Stav, kedy mozog nedokáže spracovať exponenciálny nárast informačných vhľadov, čo historické školy chápali ako hrozbu duchovného šialenstva." onclick="openSidePanel(event, this)">šialenstvu z exponenciálneho vhľadu</a>.</li>
-                                </ul>
-                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
-                            </div>
-                        </details>
-                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
-                    </div>
-                </details>
-
-                <h2>4. Architektúra únikového východu (Paralelná polis)</h2>
-                <p>Svetielko nenájdeme v oprave starých centralizovaných inštitúcií. Únikový východ spočíva v budovaní <a href="https://sk.wikipedia.org/wiki/Paraleln%C3%AD_polis" class="wiki-link" data-title="Paralelná polis" data-summary="Koncept Václava Bendu. Vytváranie nezávislých, zdola budovaných spoločenských, vzdelávacích a ekonomických štruktúr, ktoré fungujú paralelne popri zlyhávajúcom štátnom systéme." onclick="openSidePanel(event, this)">Paralelnej polis</a>. Ak odovzdávame ďalším generáciám mocné technológie (ako 3D tlač, robotiku či AI), musíme do ich vzdelávania vrátiť prísne morálne filtre, inak premenia svet na digitálne spálenisko.</p>
-                
-                <div class="graph-container">
-                    <!-- Graf 4: Centralizácia vs Paralelná Polis -->
-                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Rozpadajúce sa centrum -->
-                        <circle cx="150" cy="100" r="50" fill="none" stroke="#e11d48" stroke-width="4" stroke-dasharray="10 5" />
-                        <circle cx="150" cy="100" r="30" fill="#e11d48" opacity="0.5" />
-                        <text x="150" y="170" fill="#e11d48" font-size="12" text-anchor="middle">Zlyhávajúci centrálny systém</text>
-                        <!-- Šípky úniku -->
-                        <path d="M 220 100 L 320 100" fill="none" stroke="#a1a1aa" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4" />
-                        <!-- Decentralizované zelené uzly (Paralelná polis) -->
-                        <circle cx="450" cy="50" r="15" fill="#10b981" />
-                        <circle cx="400" cy="100" r="20" fill="#10b981" />
-                        <circle cx="500" cy="100" r="18" fill="#10b981" />
-                        <circle cx="450" cy="150" r="15" fill="#10b981" />
-                        <!-- Spojnice uzlov -->
-                        <line x1="400" y1="100" x2="450" y2="50" stroke="#10b981" stroke-width="2" />
-                        <line x1="450" y1="50" x2="500" y2="100" stroke="#10b981" stroke-width="2" />
-                        <line x1="500" y1="100" x2="450" y2="150" stroke="#10b981" stroke-width="2" />
-                        <line x1="450" y1="150" x2="400" y2="100" stroke="#10b981" stroke-width="2" />
-                        <text x="450" y="185" fill="#10b981" font-size="12" text-anchor="middle">Bunková štruktúra (Exokortex)</text>
-                    </svg>
-                </div>
-
-                <details class="level-2">
-                    <summary>Úroveň 2: Haptická realita a záchrana poznania</summary>
-                    <div class="details-content">
-                        <p>Únikový východ pre nové generácie stojí na dvoch inžinierskych pilieroch. Prvým je záchrana <strong>haptickej reality</strong> – fyzického remesla a práce s hmotou, pretože algoritmus nedokáže oklamať gravitáciu. Druhým je lokálny archív vedomostí.</p>
-                        
-                        <details class="level-3">
-                            <summary>Úroveň 3: Budovanie decentralizovaného Exokortexu</summary>
-                            <div class="details-content">
-                                <p>Keď centrálnym uzlom dochádza dych vplyvom informačnej entropie, komunity si musia budovať vlastný <a href="https://sk.wikipedia.org/wiki/Exokortex" class="wiki-link" data-title="Exokortex" data-summary="Teoretický alebo reálny systém rozšírenia ľudského intelektu (napr. šifrované vedomostné grafy), ktorý slúži ako externá pamäť a analytický nástroj mimo kontroly centrálnych platforiem." onclick="openSidePanel(event, this)">exokortex</a>. Budúcnosť prežije v asymetrických, bunkových sieťach – v rukách vzdelaných rodín a komunít s nadhľadom, ktoré si nielen udržia technologické zručnosti, ale vďaka silným morálnym kotvám prenesú civilizačný kód cez systémovú zimu do ďalšieho pulzu dejín.</p>
-                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
-                            </div>
-                        </details>
-                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
-                    </div>
-                </details>
-                
-            </div>
-            
-            <!-- EN a HU verzie by mali identickú štruktúru, pre úsporu kódu voľám len prepínač tried -->
-            <div id="content-en" class="lang-section"><h2 style="text-align: center;">[EN Translation Module Active]</h2><p style="text-align: center; color: #a1a1aa;">Structural framework initialized. Language assets swap upon full compilation.</p></div>
-            <div id="content-hu" class="lang-section"><h2 style="text-align: center;">[HU Translation Module Active]</h2><p style="text-align: center; color: #a1a1aa;">Structural framework initialized. Language assets swap upon full compilation.</p></div>
-
-        </div>
-
-        <div class="footer-note">
-            Článok vygeneroval syntetický štatistický knihovník, blíženec / gemini na základe otázok autora (Verzia 6.0).
+<div class="container">
+    <div class="top-nav">
+        <!-- Návrat je smerovaný na ./index.html v rovnakom adresári (uvahy) -->
+        <a href="./index.html" class="nav-back">
+            <span class="lang-content" data-lang="sk">&larr; Späť na Rôzne úvahy</span>
+            <span class="lang-content" data-lang="en">&larr; Back to Various thoughts</span>
+            <span class="lang-content" data-lang="hu">&larr; Vissza a Különféle gondolatokhoz</span>
+        </a>
+        <div class="controls">
+            <button class="btn" onclick="setLang('sk')" id="btn-sk">SK</button>
+            <button class="btn" onclick="setLang('en')" id="btn-en">EN</button>
+            <button class="btn" onclick="setLang('hu')" id="btn-hu">HU</button>
+            <button class="btn" id="theme-toggle">🌓</button>
         </div>
     </div>
 
-    <!-- Bočný panel (Split Screen) pre externé odkazy -->
-    <div id="side-panel">
-        <button class="close-panel-btn" onclick="closeSidePanel()">✖ Zavrieť panel</button>
-        <h3 id="side-title">Názov</h3>
-        <p id="side-summary">Zhrnutie pojmu.</p>
-        <a id="side-link" href="#" target="_blank" class="external-btn">Otvoriť celý článok v novom okne ↗</a>
-    </div>
+    <main class="article-body">
+        
+        <!-- SLOVENSKÁ VERZIA -->
+        <div class="lang-content" data-lang="sk">
+            <h1>Končia sa lineárne dejiny?</h1>
+            <p>
+                Tu vlož celý svoj slovenský text...
+            </p>
+        </div>
 
+        <!-- ANGLICKÁ VERZIA -->
+        <div class="lang-content" data-lang="en">
+            <h1>Is linear history ending?</h1>
+            <p>
+                Tu vlož celý svoj anglický text...
+            </p>
+        </div>
+
+        <!-- MAĎARSKÁ VERZIA -->
+        <div class="lang-content" data-lang="hu">
+            <h1>Véget ér a lineáris történelem?</h1>
+            <p>
+                Tu vlož celý svoj maďarský text...
+            </p>
+        </div>
+
+    </main>
 </div>
 
 <script>
-    // Prepínanie jazykov
-    function switchLang(lang) {
-        document.querySelectorAll('.lang-section').forEach(section => section.classList.remove('active'));
-        document.getElementById('content-' + lang).classList.add('active');
-        document.querySelectorAll('.perex-link').forEach(link => link.classList.remove('active'));
-        document.getElementById('perex-' + lang).classList.add('active');
+    // 1. Logika Témy
+    const toggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
     }
 
-    // Otvorenie bočného panela (Split-screen)
-    function openSidePanel(event, element) {
-        event.preventDefault(); 
-        const title = element.getAttribute('data-title');
-        const summary = element.getAttribute('data-summary');
-        const url = element.getAttribute('href');
+    toggleBtn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
 
-        document.getElementById('side-title').innerText = title;
-        document.getElementById('side-summary').innerText = summary;
-        document.getElementById('side-link').setAttribute('href', url);
-
-        document.getElementById('app-wrapper').classList.add('split-active');
+    // 2. Logika Jazyka (Automatické načítanie)
+    function setLang(lang) {
+        document.documentElement.setAttribute('lang', lang);
+        localStorage.setItem('lang', lang);
+        
+        document.querySelectorAll('.controls .btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById('btn-' + lang);
+        if(activeBtn) activeBtn.classList.add('active');
     }
 
-    // Zatvorenie bočného panela
-    function closeSidePanel() {
-        document.getElementById('app-wrapper').classList.remove('split-active');
-    }
+    // Okamžité rozoznanie jazyka pri otvorení stránky z localStorage, inak SK
+    const savedLang = localStorage.getItem('lang') || 'sk';
+    setLang(savedLang);
 </script>
 
 </body>
