@@ -236,9 +236,15 @@
                         <p>Západné elity urobili po roku 1989 zásadnú chybu. Uverili, že import západného ekonomického hardvéru automaticky zmení aj kultúrny softvér v Rusku či Číne. Aplikovali lineárne myslenie na nelineárny živý systém. Globálna <a href="https://sk.wikipedia.org/wiki/Hegem%C3%B3nia" class="wiki-link" data-title="Hegemónia" data-summary="Nadvláda, politická a vojenská dominancia jedného štátu (alebo bloku) nad ostatnými, udávajúca pravidlá globálneho systému." onclick="openSidePanel(event, this)">hegemónia</a> Západu sa tak roztrieštila o kultúrne a historické špecifiká iných civilizácií.</p>
                         
                         <details class="level-3">
-                            <summary>Úroveň 3: Historická symetria Jalty a Malty</summary>
+                            <summary>Úroveň 3: Historická symetria Jalty a Malty (Anatómia Sachsovho omylu)</summary>
                             <div class="details-content">
-                                <p>Ak bola <a href="https://sk.wikipedia.org/wiki/Jaltsk%C3%A1_konferencia" class="wiki-link" data-title="Jaltská konferencia (1945)" data-summary="Stretnutie veľmocí, kde si cynicky, ale pragmaticky rozdelili svet, čo paradoxne prinieslo dlhodobú štrukturálnu stabilitu Studenej vojny." onclick="openSidePanel(event, this)">Jaltská konferencia</a> v roku 1945 pragmatickým rozdelením sfér vplyvu a <a href="https://sk.wikipedia.org/wiki/Maltsk%C3%A1_konferencia_(1989)" class="wiki-link" data-title="Maltská konferencia (1989)" data-summary="Stretnutie symbolicky ukončujúce Studenú vojnu. Deklarovalo svet bez sfér vplyvu, čo viedlo k 30 rokom západnej globalizácie." onclick="openSidePanel(event, this)">Malta (1989)</a> ilúziou jedného racionálneho sveta, dnešok je vytriezvením. Systém s jediným riadiacim pólom narástol do takej miery komplexity, že ho Washington nedokázal udržať. Nastupuje asymetrický realizmus, kde starý univerzálny kód prestal platiť a nové inštitúcie (ako BRICS) si píšu vlastné protokoly.</p>
+                                <p>Ak bola <a href="https://sk.wikipedia.org/wiki/Jaltsk%C3%A1_konferencia" class="wiki-link" data-title="Jaltská konferencia (1945)" data-summary="Stretnutie veľmocí, kde si cynicky, ale pragmaticky rozdelili svet, čo paradoxne prinieslo dlhodobú štrukturálnu stabilitu Studenej vojny." onclick="openSidePanel(event, this)">Jaltská konferencia</a> v roku 1945 pragmatickým rozdelením sfér vplyvu a <a href="https://sk.wikipedia.org/wiki/Maltsk%C3%A1_konferencia_(1989)" class="wiki-link" data-title="Maltská konferencia (1989)" data-summary="Stretnutie symbolicky ukončujúce Studenú vojnu. Deklarovalo svet bez sfér vplyvu, čo viedlo k 30 rokom západnej globalizácie." onclick="openSidePanel(event, this)">Malta (1989)</a> ilúziou jedného racionálneho sveta, dnešok je vytriezvením.</p>
+                                
+                                <ul>
+                                    <li><strong>Harvardská lineárna pýcha (90. roky):</strong> Príbeh J. Sachsa ilustruje tento systémový omyl vo svojej podstate. Po páde Berlínskeho múru aplikoval tzv. šokovú terapiu – presvedčenie, že rýchla ekonomická privatizácia (hardvér) automaticky prepíše aj demokratické inštitúcie (softvér) v Rusku či Latinskej Amerike. Bol to inžiniersky omyl, ktorý ignoroval kultúrnu zotrvačnosť a viedol k masívnej oligarchizácii.</li>
+                                    <li><strong>Asymetrický realizmus (Dnešok):</strong> Systém s jediným riadiacim pólom narástol do takej miery komplexity, že ho Washington logisticky nedokázal udržať. Sachs dnes otvorene konštatuje to, na čo prišli architekti komplexných systémov – univerzálny kód prestal platiť. Neokonzervatívny projekt zlyhal a prichádza nutnosť Novej Jalty, kde si vznikajúce štruktúry (ako BRICS) budujú vlastné protokoly mimo pôvodného centrálneho servera.</li>
+                                </ul>
+
                                 <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
                             </div>
                         </details>
@@ -358,7 +364,7 @@
         </div>
 
         <div class="footer-note">
-            Článok vygeneroval syntetický štatistický knihovník, blíženec / gemini na základe otázok autora (Verzia 6.0 s integrovanou systémovou pamäťou Exocortexu).
+            Článok vygeneroval syntetický štatistický knihovník, blíženec / gemini na základe otázok autora (Verzia 6.1 s integrovanou systémovou pamäťou Exocortexu a aktualizáciou vedomostných uzlov).
         </div>
     </div>
 
@@ -377,7 +383,6 @@
     const toggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('theme');
     
-    // Prednastavíme tému z pamäte, alebo systémovú
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
     } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -396,27 +401,23 @@
         document.documentElement.setAttribute('lang', lang);
         localStorage.setItem('lang', lang);
         
-        // Aktualizácia tlačidiel v hornom menu
         document.querySelectorAll('.top-nav .lang-btn').forEach(btn => btn.classList.remove('active'));
         const activeNavBtn = document.getElementById('btn-' + lang);
         if(activeNavBtn) activeNavBtn.classList.add('active');
 
-        // Aktualizácia obsahu
         document.querySelectorAll('.lang-section').forEach(section => section.classList.remove('active'));
         const activeSection = document.getElementById('content-' + lang);
         if(activeSection) activeSection.classList.add('active');
 
-        // Aktualizácia podsvietenia odkazov v perexe
         document.querySelectorAll('.perex-link').forEach(link => link.classList.remove('active'));
         const activePerex = document.getElementById('perex-' + lang);
         if(activePerex) activePerex.classList.add('active');
     }
 
-    // Automatické načítanie pri otvorení
     const savedLang = localStorage.getItem('lang') || 'sk';
     setLang(savedLang);
 
-    // --- 3. Funkcie Bočného Panela (Tvoja pôvodná logika) ---
+    // --- 3. Funkcie Bočného Panela ---
     function openSidePanel(event, element) {
         event.preventDefault(); 
         const title = element.getAttribute('data-title');
