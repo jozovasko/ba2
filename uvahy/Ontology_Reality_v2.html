@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ontológia Reality v2.0 | LATVOMY</title>
+    <style>
+        /* CSS premenné - Svetlý režim (predvolený) */
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #2c3e50;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
+            --accent-deep: #be123c;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --perex-dim: #64748b;
+            --details-bg: #f8fafc;
+            --link-color: #2980b9;
+            --table-header: #e2e8f0;
+            --table-row-alt: #f1f5f9;
+        }
+
+        /* CSS premenné - Tmavý režim */
+        [data-theme="dark"] {
+            --bg-color: #0f111a;
+            --text-color: #e4e4e7;
+            --accent-color: #0ea5e9;
+            --accent-hover: #38bdf8;
+            --accent-deep: #e11d48;
+            --card-bg: #1e2133;
+            --border-color: #333852;
+            --perex-dim: #9ca3af;
+            --details-bg: rgba(255, 255, 255, 0.02);
+            --link-color: #64b5f6;
+            --table-header: #1e293b;
+            --table-row-alt: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Horná systémová navigácia */
+        .top-nav {
+            max-width: 1600px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .nav-back { color: var(--link-color); text-decoration: none; font-weight: 500; }
+        .nav-back:hover { text-decoration: underline; }
+
+        .controls { display: flex; gap: 10px; }
+        .btn {
+            background: none; border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; transition: all 0.2s ease;
+        }
+        .btn:hover, .btn.active { background: var(--border-color); font-weight: bold; }
+
+        /* Logika skryvania textu a blokov podla jazyka */
+        .lang-content { display: none; }
+        html[lang="sk"] .lang-content[data-lang="sk"] { display: block; }
+        html[lang="en"] .lang-content[data-lang="en"] { display: block; }
+        html[lang="hu"] .lang-content[data-lang="hu"] { display: block; }
+        
+        html[lang="sk"] span.lang-content[data-lang="sk"] { display: inline; }
+        html[lang="en"] span.lang-content[data-lang="en"] { display: inline; }
+        html[lang="hu"] span.lang-content[data-lang="hu"] { display: inline; }
+
+        /* Layout pre Split-screen */
+        #app-wrapper { max-width: 1600px; margin: 0 auto; display: flex; gap: 20px; transition: all 0.4s ease; align-items: flex-start; }
+        .main-container { flex: 1; min-width: 0; transition: all 0.4s ease; }
+
+        /* Bočný panel (Split screen) */
+        #side-panel {
+            width: 0; opacity: 0; visibility: hidden; background: var(--card-bg);
+            border: 1px solid var(--accent-color); border-radius: 8px; transition: all 0.4s ease;
+            display: flex; flex-direction: column; position: sticky; top: 20px;
+            max-height: calc(100vh - 40px); overflow-y: auto;
+        }
+        #app-wrapper.split-active #side-panel { width: 450px; opacity: 1; visibility: visible; padding: 25px; }
+        #side-panel h3 { color: var(--accent-color); margin-top: 0; font-size: 1.4rem;}
+        #side-panel p { font-size: 1.05rem; color: var(--text-color); opacity: 0.9; line-height: 1.6; }
+        .external-btn {
+            display: inline-block; background-color: var(--accent-color); color: #fff;
+            text-decoration: none; text-align: center; padding: 12px 15px; border-radius: 6px;
+            font-weight: bold; margin-top: 20px; transition: background-color 0.2s;
+        }
+        .external-btn:hover { background-color: var(--accent-hover); text-decoration: none; color: #fff; }
+        .close-panel-btn {
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 8px 12px; border-radius: 4px; cursor: pointer; align-self: flex-end; margin-bottom: 15px;
+        }
+        .close-panel-btn:hover { border-color: var(--accent-deep); color: var(--accent-deep); }
+
+        header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        h1.main-title { font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--accent-color); margin-bottom: 20px; text-align: center; }
+        
+        /* Perex úprava */
+        .perex-container { max-width: 1000px; margin: 0 auto; }
+        .perex-text {
+            font-size: 1.15rem; font-style: italic; color: var(--perex-dim);
+            padding: 18px 24px; border-left: 4px solid var(--accent-color);
+            background: var(--details-bg); border-radius: 0 8px 8px 0; margin: 0;
+            line-height: 1.6;
+        }
+        
+        .content-area { background: var(--card-bg); padding: clamp(20px, 4vw, 40px); border-radius: 8px; border: 1px solid var(--border-color); font-size: 1.1rem; }
+        .lang-section { display: none; animation: fadeIn 0.4s ease; }
+        .lang-section.active { display: block; }
+        
+        h2 { color: var(--accent-hover); font-size: 1.7rem; margin-top: 2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        h3 { color: var(--accent-deep); font-size: 1.3rem; margin-top: 1.5em; }
+        
+        /* Tooltip a linky */
+        .wiki-link {
+            color: var(--accent-hover); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px;
+            cursor: pointer; position: relative; font-weight: 600; padding: 0 2px;
+        }
+        .wiki-link:hover { background: rgba(14, 165, 233, 0.1); border-radius: 4px; }
+        
+        /* Trojúrovňové detaily */
+        details { margin: 25px 0; background: var(--details-bg); border-radius: 6px; padding: 15px 20px; border-left: 4px solid var(--border-color); transition: all 0.3s ease; }
+        details.level-2[open] { border-left-color: var(--accent-color); background: rgba(14, 165, 233, 0.03); padding-bottom: 60px; position: relative; }
+        details.level-3 { border-left: 4px solid var(--accent-deep); background: rgba(225, 29, 72, 0.03); margin-top: 20px; }
+        details.level-3[open] { border-left-color: var(--accent-deep); background: rgba(225, 29, 72, 0.06); padding-bottom: 50px; position: relative;}
+        
+        summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; font-size: 1.15rem; }
+        details.level-2 > summary { color: var(--accent-hover); }
+        details.level-3 > summary { color: var(--accent-deep); font-size: 1.05rem;}
+        summary::-webkit-details-marker { display: none; }
+        summary::before { content: '►'; font-size: 0.8em; margin-right: 12px; transition: transform 0.2s; }
+        details[open] > summary::before { transform: rotate(90deg); }
+        .details-content { margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 20px; }
+
+        /* Tlačidlá na zatvorenie detailov */
+        .close-btn {
+            position: absolute; bottom: 15px; right: 20px; background: transparent;
+            border: 1px solid; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+        }
+        details.level-2 > .close-btn { color: var(--accent-hover); border-color: var(--accent-hover); }
+        details.level-2 > .close-btn:hover { background: var(--accent-color); color: #fff; }
+        details.level-3 > .close-btn { color: var(--accent-deep); border-color: var(--accent-deep); }
+        details.level-3 > .close-btn:hover { background: var(--accent-deep); color: #fff; }
+
+        /* Vektorové grafy */
+        .graph-container { margin: 30px 0; padding: 25px; background: var(--details-bg); border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+        svg { width: 100%; max-width: 650px; height: auto; }
+        .svg-text { fill: var(--text-color); }
+        .svg-dim-text { fill: var(--perex-dim); }
+        .svg-grid { stroke: var(--border-color); }
+
+        /* Komparatívna tabuľka */
+        .compare-table { width: 100%; border-collapse: collapse; margin: 40px 0; font-size: 0.95rem; }
+        .compare-table th, .compare-table td { padding: 12px 15px; border: 1px solid var(--border-color); text-align: left; vertical-align: top; }
+        .compare-table th { background-color: var(--table-header); color: var(--accent-hover); font-weight: bold; }
+        .compare-table tr:nth-child(even) { background-color: var(--table-row-alt); }
+        .compare-table td:first-child { font-weight: bold; color: var(--accent-deep); width: 15%; }
+
+        .footer-note { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.95rem; color: var(--perex-dim); text-align: right; font-style: italic; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 1024px) {
+            #app-wrapper.split-active { flex-direction: column; }
+            #app-wrapper.split-active #side-panel { width: 100%; position: static; max-height: none; }
+            .compare-table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="./index.html" class="nav-back">
+        <span class="lang-content" data-lang="sk">&larr; Späť do Exokortexu</span>
+        <span class="lang-content" data-lang="en">&larr; Back to Exocortex</span>
+        <span class="lang-content" data-lang="hu">&larr; Vissza az Exocortexbe</span>
+    </a>
+    <div class="controls">
+        <button class="btn lang-btn" onclick="setLang('sk')" id="btn-sk">SK</button>
+        <button class="btn lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+        <button class="btn lang-btn" onclick="setLang('hu')" id="btn-hu">HU</button>
+        <button class="btn" id="theme-toggle">🌓</button>
+    </div>
+</div>
+
+<div id="app-wrapper">
+    <div class="main-container">
+        <header>
+            <h1 class="main-title">
+                <span class="lang-content" data-lang="sk">Syntéza vedy a mystiky: Architektúra reality</span>
+                <span class="lang-content" data-lang="en">Synthesis of Science and Mysticism: Architecture of Reality</span>
+                <span class="lang-content" data-lang="hu">Tudomány és Misztika szintézise: A valóság építészete</span>
+            </h1>
+            
+            <div class="perex-container">
+                <div class="lang-content" data-lang="sk">
+                    <p class="perex-text">Od karteziánskeho stroja k holografickému vesmíru. Ako moderná informačná veda a kvantová mechanika matematicky dokazujú to, čo kabalisti a východní mystici kódovali do svojich textov po tisícročia. Rigorózna dekompozícia ontologických modelov.</p>
+                </div>
+                <div class="lang-content" data-lang="en">
+                    <p class="perex-text">From the Cartesian machine to the holographic universe. How modern information science and quantum mechanics mathematically prove what Kabbalists and Eastern mystics coded into their texts for millennia. A rigorous decomposition of ontological models.</p>
+                </div>
+                <div class="lang-content" data-lang="hu">
+                    <p class="perex-text">A kartezianista géptől a holografikus univerzumig. Hogyan bizonyítja matematikailag a modern informatika és kvantummechanika azt, amit a kabbalisták és a keleti misztikusok évezredek óta kódoltak szövegeikbe. Ontológiai modellek rigorózus felbontása.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- ================= SK VERZIA ================= -->
+            <div id="content-sk" class="lang-section active">
+                <h2>1. Kvantový a informačný obrat (Koniec objektivizmu)</h2>
+                <p>Západná veda dlho stála na <a href="https://sk.wikipedia.org/wiki/Ren%C3%A9_Descartes" class="wiki-link" data-title="Karteziánsky dualizmus" data-summary="Filozofický koncept Reného Descarta, ktorý striktne oddelil mysliacu substanciu (res cogitans) od hmotnej, priestorovej substancie (res extensa)." onclick="openSidePanel(event, this)">karteziánskom dualizme</a> a newtonovskom mechanizme. Vesmír bol vnímaný ako obrovský hodinový stroj, v ktorom sa pevné objekty pohybujú v absolútnom čase a priestore, úplne nezávisle od toho, či ich niekto pozoruje. Tento model sa zrútil v 20. rokoch 20. storočia s príchodom kvantovej mechaniky. <a href="https://sk.wikipedia.org/wiki/Koda%C5%88sk%C3%A1_interpret%C3%A1cia" class="wiki-link" data-title="Kodaňská interpretácia" data-summary="Základný výklad kvantovej mechaniky (Niels Bohr, Werner Heisenberg), podľa ktorého fyzikálne systémy nemajú definitívne vlastnosti pred ich zmeraním." onclick="openSidePanel(event, this)">Kodaňská interpretácia</a> nekompromisne ukázala, že neexistuje nič také ako "pozorovateľ za neviditeľným sklom". Samotný akt merania kolabuje vlnovú funkciu z poľa pravdepodobností do jediného bodu reality.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-sk1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" /></marker></defs>
+                        <rect x="50" y="50" width="150" height="100" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <text x="125" y="105" fill="#e11d48" font-size="14" text-anchor="middle">Sieť vedomých agentov</text>
+                        <text x="125" y="125" class="svg-dim-text" font-size="11" text-anchor="middle">(Čistý informačný tok)</text>
+                        <path d="M 220 100 L 380 100" fill="none" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arrow-sk1)" />
+                        <text x="300" y="90" fill="#0ea5e9" font-size="12" text-anchor="middle">Evolučný filter vnímania</text>
+                        <rect x="400" y="50" width="150" height="100" fill="none" class="svg-grid" stroke-width="2" rx="10"/>
+                        <circle cx="475" cy="90" r="15" fill="#10b981" />
+                        <text x="475" y="130" class="svg-text" font-size="14" text-anchor="middle">3D Rozhranie</text>
+                        <text x="475" y="145" class="svg-dim-text" font-size="11" text-anchor="middle">(Desktop fyzického sveta)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Úroveň 2: Teória rozhrania (Donald Hoffman)</summary>
+                    <div class="details-content">
+                        <p>Dnes tento obrat dovŕšil kognitívny vedec <a href="https://en.wikipedia.org/wiki/Donald_Hoffman" class="wiki-link" data-title="Donald Hoffman" data-summary="Matematik a kognitívny vedec. Jeho veta 'Fitness Beats Truth' matematicky dokazuje, že evolúcia nás nenaprogramovala vnímať realitu takú, aká je." onclick="openSidePanel(event, this)">Donald Hoffman</a>. Pomocou evolučnej teórie hier dokázal, že pravdepodobnosť, že zmysly vnímajú skutočnú realitu, je presne nula. Evolúcia odmeňuje <em>fitness</em> (prežitie), nie pravdu. Fyzické objekty, priestor a čas nie sú skutočnosť; sú to len ikony na <a href="https://en.wikipedia.org/wiki/User_interface" class="wiki-link" data-title="Užívateľské rozhranie" data-summary="Grafický priestor, ktorý prekladá zložité binárne kódy do jednoduchej formy, s ktorou vie užívateľ pracovať." onclick="openSidePanel(event, this)">užívateľskom rozhraní</a>, vyvinuté tak, aby zakryli nepredstaviteľnú komplexitu informačného poľa a umožnili nám prežiť.</p>
+                        <details class="level-3">
+                            <summary>Úroveň 3: Holonomný model mozgu a Von Neumannova reťaz</summary>
+                            <div class="details-content">
+                                <p>Tento matematický model priamo rezonuje s prácou <a href="https://en.wikipedia.org/wiki/Karl_H._Pribram" class="wiki-link" data-title="Karl Pribram" data-summary="Neurofyziológ, ktorý zistil, že pamäť v mozgu nie je lokalizovaná, ale distribuovaná holograficky vo forme interferenčných vĺn." onclick="openSidePanel(event, this)">Karla Pribrama</a> a <a href="https://en.wikipedia.org/wiki/David_Bohm" class="wiki-link" data-title="David Bohm" data-summary="Kvantový fyzik, autor teórie implicitného poriadku. Tvrdil, že vesmír je nedeliteľný celok a hmota je len jeho dočasne rozvinutou formou." onclick="openSidePanel(event, this)">Davida Bohma</a>. Mozog neanalyzuje objekty, ale spracováva frekvencie vĺn (pomocou Fourierových transformácií) a premieta ich do holografickej ilúzie 3D sveta. Korešponduje to s logickým problémom <a href="https://en.wikipedia.org/wiki/Von_Neumann%E2%80%93Wigner_interpretation" class="wiki-link" data-title="Von Neumannova reťaz" data-summary="Myšlienkový experiment v kvantovej fyzike hľadajúci bod, kde kolabuje vlnová funkcia. John von Neumann dospel k záveru, že jedinou entitou mimo fyzikálneho reťazca je nelokálne 'vedomie'." onclick="openSidePanel(event, this)">von Neumannovej reťaze</a> – ak sa každý merací prístroj dostane do superpozície so systémom, vlnovú funkciu môže zrútiť len niečo, čo nie je hmotné. Vedomie samo.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>2. Kabala (Zohar a Luria) - Architektúra filtrov vedomia</h2>
+                <p>Kým fyzika k týmto záverom dospela v 21. storočí pomocou lineárnych urýchľovačov, <a href="https://sk.wikipedia.org/wiki/Kabala" class="wiki-link" data-title="Kabala" data-summary="Židovská mystická tradícia zameraná na pochopenie vnútornej štruktúry stvorenia a vzťahu medzi nekonečným Stvoriteľom a konečným svetom." onclick="openSidePanel(event, this)">Kabala</a> túto štruktúru opísala už pred stovkami rokov na základe inžinierskeho prístupu k ľudskému vnímaniu. Kabala nevidí svet ako mapu planét, ale ako hierarchický kód – kaskádu filtrov.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="300" cy="30" r="20" fill="#fbbf24" />
+                        <text x="340" y="35" class="svg-text" font-size="14">Or Ein Sof (Svetlo - čisté Vedomie)</text>
+                        <!-- Cimcum -->
+                        <path d="M 300 50 L 300 90" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <rect x="250" y="90" width="100" height="20" fill="#e11d48" opacity="0.8" />
+                        <text x="360" y="105" fill="#e11d48" font-size="14">Cimcum a Resimu (Kompresia a Odtlačok)</text>
+                        <!-- Kelim -->
+                        <path d="M 300 110 L 300 150" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <path d="M 270 150 L 330 150 L 320 180 L 280 180 Z" fill="none" stroke="#0ea5e9" stroke-width="2" />
+                        <text x="360" y="170" fill="#0ea5e9" font-size="14">Malchut / Keli (Najhrubšia Nádoba - náš 3D svet)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Úroveň 2: Cimcum, Resimu a vznik priestoru</summary>
+                    <div class="details-content">
+                        <p>Základnou informačnou entitou je <em>Or Ein Sof</em> (Nekonečné svetlo, čistá túžba odovzdávať). Aby mohlo vzniknúť čokoľvek mimo neho (niečo konečné), musel nastať <a href="https://en.wikipedia.org/wiki/Tzimtzum" class="wiki-link" data-title="Cimcum (Tzimtzum)" data-summary="Kabalistický koncept radikálneho 'stiahnutia' Božského svetla. Vytvorenie metafyzického vákua, aby nevznikol skrat z nadbytku informácií." onclick="openSidePanel(event, this)">Cimcum</a>. Nejde o fyzické stiahnutie, ale o informačný filter. Vo vytvorenom "prázdnom priestore" zostal pamäťový odtlačok zvaný <em>Resimu</em> (podobne ako kvantové fluktuácie vo vákuu), z ktorého vzniká systém desiatich informačných dimenzií (<a href="https://sk.wikipedia.org/wiki/Sefira_(kabala)" class="wiki-link" data-title="Sefirot" data-summary="Desať atribútov, emanácií alebo archetypálnych štruktúr, cez ktoré sa Nekonečné prejavuje do konečného sveta." onclick="openSidePanel(event, this)">Sefirot</a>).</p>
+                        <details class="level-3">
+                            <summary>Úroveň 3: Zákon ekvivalencie formy a dynamika Nádob</summary>
+                            <div class="details-content">
+                                <p>To, čomu hovoríme "hmota" a náš vesmír (<em>Malchut</em>), nie je iná substancia. Je to len najhrubšia forma prijímača – <em>Keli</em> (Nádoby). Nádoba je štruktúra túžby (ega). Kabala definuje zákon <em>Chasva'at ha-Cura</em> (Ekvivalencia formy): Svetlo vnímame len do tej miery, nakoľko naše vlastnosti rezonujú so svetlom. Pretože naša nádoba je nastavená na sebecké prijímanie, je v maximálnej opozícii voči svetlu (odovzdávaniu), čo vytvára obrovský odpor. Tento odpor sa prejavuje ako naše vnímanie pevnej matérie, tlaku času a separácie. Preprogramovaním ega (cez proces <em>Tikun</em>) človek prestavuje svoju nádobu a mení grafické rozhranie reality.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>3. Východ a Hermetizmus: Dekonštrukcia a Transmutácia</h2>
+                <p>Rôzne mystické tradície pristupovali k tomuto "kódu reality" inak. Východné filozofie smerovali k jeho rozpusteniu, zatiaľ čo západný hermetizmus sa ho snažil hacknúť.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-sk2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" /></marker></defs>
+                        <!-- Makrokozmos -->
+                        <circle cx="150" cy="100" r="70" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <!-- Mikrokozmos -->
+                        <circle cx="150" cy="100" r="25" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+                        <text x="150" y="105" class="svg-text" font-size="12" text-anchor="middle">Človek</text>
+                        <text x="150" y="45" fill="#e11d48" font-size="14" text-anchor="middle">Makrokozmos (Vesmír)</text>
+                        
+                        <path d="M 240 100 L 360 100" fill="none" stroke="#10b981" stroke-width="3" marker-end="url(#arrow-sk2)" />
+                        <text x="300" y="90" fill="#10b981" font-size="12" text-anchor="middle">Holografická rezonancia</text>
+                        
+                        <!-- Transmutacia -->
+                        <path d="M 450 160 Q 520 100 450 40 Q 380 100 450 160 Z" fill="none" stroke="#fbbf24" stroke-width="3"/>
+                        <text x="450" y="105" class="svg-text" font-size="14" text-anchor="middle">Magnum Opus</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Úroveň 2: Jednota vedomia a Mája (Východ)</summary>
+                    <div class="details-content">
+                        <p>Otec kvantovej mechaniky <a href="https://sk.wikipedia.org/wiki/Erwin_Schr%C3%B6dinger" class="wiki-link" data-title="Erwin Schrödinger" data-summary="Tvorca Schrödingerovej rovnice. Paradoxy kvantovej fyziky riešil štúdiom indických Upanišád." onclick="openSidePanel(event, this)">Erwin Schrödinger</a> na vyriešenie paradoxu pozorovateľa integroval myšlienky indickej <a href="https://en.wikipedia.org/wiki/Advaita_Vedanta" class="wiki-link" data-title="Advaita Védanta" data-summary="Najstaršia hinduistická nedualistická škola. Učí, že jedinou skutočnosťou je Brahman a individuálna duša (Átman) je s ním identická." onclick="openSidePanel(event, this)">Advaita Védanty</a>. Pluralita vedomí je nemožná, inak by vesmír skolaboval do chaosu. Vedomie je iba jedno (singulárne). To, že sa vnímame oddelene, je <em>Mája</em> (optická ilúzia). Budhizmus to dopĺňa konceptom <em>Śúnjatá</em> (prázdnota) a <a href="https://en.wikipedia.org/wiki/Indra%27s_net" class="wiki-link" data-title="Indrova sieť" data-summary="Budhistická metafora nekonečnej siete, kde v každom uzle je drahokam, ktorý odráža všetky ostatné drahokamy v sieti (fraktálna štruktúra)." onclick="openSidePanel(event, this)">Indrovou sieťou</a>, čo je v podstate staroveký popis kvantovej nelokálnosti.</p>
+                        <details class="level-3">
+                            <summary>Úroveň 3: Hermetická analógia a Magnum Opus (Západ)</summary>
+                            <div class="details-content">
+                                <p>Zatiaľ čo východ sa snažil obrazovku vypnúť, západná alchýmia a <a href="https://sk.wikipedia.org/wiki/Hermetizmus_(filozofia)" class="wiki-link" data-title="Hermetizmus" data-summary="Staroveký filozofický a magický systém. Jeho jadrom je princíp analógie a mikroskopického zrkadlenia makrokozmu." onclick="openSidePanel(event, this)">Hermetizmus</a> (vychádzajúce zo Smaragdovej dosky <em>"Ako hore, tak dole"</em>) vytvorili softvérové makrá. Predpokladali, že ak je vesmír hologram a časť obsahuje celok, zmena vnútorného stavu operátora vyvolá rezonančnú odozvu vo vonkajšom fyzickom poli (synchronicita). Cieľom bolo <em>Magnum Opus</em> – proces úplnej transmutácie mysle a hmoty za účelom vedomého formovania lokálneho rozhrania.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Zavrieť Úroveň 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>4. Ontologická matica: Komparatívna analýza</h2>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Systém / Kritérium</th>
+                            <th>Čo je to Hmota?</th>
+                            <th>Čo je to Vedomie?</th>
+                            <th>Priestor a Čas</th>
+                            <th>Mechanizmus interakcie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Materializmus (17.-19. st.)</td>
+                            <td>Pevná, nezávislá entita (atóm).</td>
+                            <td>Vedľajší produkt (epifenomén) mozgu.</td>
+                            <td>Absolútne, fixné javisko reality.</td>
+                            <td>Fyzická sila, mechanická lokálna práca.</td>
+                        </tr>
+                        <tr>
+                            <td>Kvantová fyzika (Bohm / Pribram)</td>
+                            <td>Explicitný poriadok; dočasne rozvinutá vlna.</td>
+                            <td>Projekcia z rovnakého implicitného poriadku ako hmota.</td>
+                            <td>Sekundárny konštrukt (vzniká aktom dekódovania).</td>
+                            <td>Dekoherencia vĺn, kvantové previazanie.</td>
+                        </tr>
+                        <tr>
+                            <td>Kognitívny Realizmus (Hoffman)</td>
+                            <td>Trojrozmerná ikona na monitore rozhrania.</td>
+                            <td>Primárna substancia; matematická sieť agentov.</td>
+                            <td>Kódovacie médium (grafická karta) desktopu.</td>
+                            <td>Výmena informácií a matematických stavov.</td>
+                        </tr>
+                        <tr>
+                            <td>Kabala (Zohar)</td>
+                            <td>Najhrubšia vrstva Nádoby (Keli / Malchut).</td>
+                            <td>Or Ein Sof; jediná objektívne existujúca sila.</td>
+                            <td>Dôsledok radikálnej kompresie svetla (Cimcum).</td>
+                            <td>Ekvivalencia formy (zhoda vnútorných vlastností).</td>
+                        </tr>
+                        <tr>
+                            <td>Východný Nedualizmus</td>
+                            <td>Mája; iluzórna fragmentácia poľa vnímaním.</td>
+                            <td>Brahman / Átman; bezrozmerné vnímajúce plátno.</td>
+                            <td>Ilúzia generovaná lineárnym tokom mysle.</td>
+                            <td>Utíšenie pozornosti, negácia hraníc (Neti-Neti).</td>
+                        </tr>
+                        <tr>
+                            <td>Západný Hermetizmus</td>
+                            <td>Zahustený duch; zrkadlo stavu operátora.</td>
+                            <td>Nous; tvorivá inteligencia generujúca tvary.</td>
+                            <td>Plátno pre manifestáciu zákona analógie.</td>
+                            <td>Rituálna rezonancia, alchymická transmutácia.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ================= EN VERZIA ================= -->
+            <div id="content-en" class="lang-section">
+                <h2>1. The Quantum and Informational Turn (End of Objectivism)</h2>
+                <p>Western science long stood on <a href="https://en.wikipedia.org/wiki/Mind%E2%80%93body_dualism" class="wiki-link" data-title="Cartesian Dualism" data-summary="René Descartes' philosophical concept strictly separating the thinking substance (res cogitans) from the material substance (res extensa)." onclick="openSidePanel(event, this)">Cartesian dualism</a> and the Newtonian mechanism. The universe was seen as a giant clockwork where solid objects move in absolute time and space, completely independently of observation. This model collapsed in the 1920s with quantum mechanics. The <a href="https://en.wikipedia.org/wiki/Copenhagen_interpretation" class="wiki-link" data-title="Copenhagen Interpretation" data-summary="The foundational framework of quantum mechanics (Bohr, Heisenberg) stating that physical systems lack definite properties prior to measurement." onclick="openSidePanel(event, this)">Copenhagen interpretation</a> uncompromisingly showed that there is no "observer behind invisible glass." The act of measurement collapses the wave function from a field of probabilities into a single point of reality.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-en1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" /></marker></defs>
+                        <rect x="50" y="50" width="150" height="100" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <text x="125" y="105" fill="#e11d48" font-size="14" text-anchor="middle">Network of Conscious Agents</text>
+                        <text x="125" y="125" class="svg-dim-text" font-size="11" text-anchor="middle">(Pure Information Flow)</text>
+                        <path d="M 220 100 L 380 100" fill="none" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arrow-en1)" />
+                        <text x="300" y="90" fill="#0ea5e9" font-size="12" text-anchor="middle">Evolutionary Perceptual Filter</text>
+                        <rect x="400" y="50" width="150" height="100" fill="none" class="svg-grid" stroke-width="2" rx="10"/>
+                        <circle cx="475" cy="90" r="15" fill="#10b981" />
+                        <text x="475" y="130" class="svg-text" font-size="14" text-anchor="middle">3D Interface</text>
+                        <text x="475" y="145" class="svg-dim-text" font-size="11" text-anchor="middle">(Physical World Desktop)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Level 2: Interface Theory (Donald Hoffman)</summary>
+                    <div class="details-content">
+                        <p>Today, this turn has been completed by cognitive scientist <a href="https://en.wikipedia.org/wiki/Donald_Hoffman" class="wiki-link" data-title="Donald Hoffman" data-summary="Mathematician and cognitive scientist. His 'Fitness Beats Truth' theorem mathematically proves evolution did not program us to perceive reality as it is." onclick="openSidePanel(event, this)">Donald Hoffman</a>. Using evolutionary game theory, he proved that the probability our senses perceive actual reality is exactly zero. Evolution rewards <em>fitness</em> (survival), not truth. Physical objects, space, and time are not reality; they are merely icons on a <a href="https://en.wikipedia.org/wiki/User_interface" class="wiki-link" data-title="User Interface" data-summary="A graphical space translating complex binary codes into a simple format the user can interact with." onclick="openSidePanel(event, this)">user interface</a>, evolved to hide the unimaginable complexity of the information field and allow us to survive.</p>
+                        <details class="level-3">
+                            <summary>Level 3: Holonomic Brain Model and Von Neumann Chain</summary>
+                            <div class="details-content">
+                                <p>This mathematical model directly resonates with the work of <a href="https://en.wikipedia.org/wiki/Karl_H._Pribram" class="wiki-link" data-title="Karl Pribram" data-summary="Neurophysiologist who found memory is not localized but distributed holographically as interference waves." onclick="openSidePanel(event, this)">Karl Pribram</a> and <a href="https://en.wikipedia.org/wiki/David_Bohm" class="wiki-link" data-title="David Bohm" data-summary="Quantum physicist, author of implicate order theory. He argued the universe is an indivisible whole and matter is its unfolded form." onclick="openSidePanel(event, this)">David Bohm</a>. The brain processes wave frequencies (via Fourier transforms) and projects them into the holographic illusion of the 3D world. This corresponds to the logical problem of the <a href="https://en.wikipedia.org/wiki/Von_Neumann%E2%80%93Wigner_interpretation" class="wiki-link" data-title="Von Neumann Chain" data-summary="A thought experiment seeking the point where the wave function collapses. Von Neumann concluded the only entity outside the physical chain is non-local 'consciousness'." onclick="openSidePanel(event, this)">von Neumann chain</a>—if every measuring device enters superposition with the system, the wave function can only be collapsed by something non-material. Consciousness itself.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>2. Kabbalah (Zohar & Luria) - Architecture of Consciousness Filters</h2>
+                <p>While physics reached these conclusions in the 21st century via linear accelerators, <a href="https://en.wikipedia.org/wiki/Kabbalah" class="wiki-link" data-title="Kabbalah" data-summary="Jewish mystical tradition focused on understanding the inner structure of creation and the relationship between the Infinite and the finite." onclick="openSidePanel(event, this)">Kabbalah</a> described this structure hundreds of years ago based on an engineering approach to human perception. Kabbalah does not see the world as a map of planets, but as a hierarchical code—a cascade of filters.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="300" cy="30" r="20" fill="#fbbf24" />
+                        <text x="340" y="35" class="svg-text" font-size="14">Or Ein Sof (The Light - Pure Consciousness)</text>
+                        <path d="M 300 50 L 300 90" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <rect x="250" y="90" width="100" height="20" fill="#e11d48" opacity="0.8" />
+                        <text x="360" y="105" fill="#e11d48" font-size="14">Tzimtzum & Resimu (Compression & Imprint)</text>
+                        <path d="M 300 110 L 300 150" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <path d="M 270 150 L 330 150 L 320 180 L 280 180 Z" fill="none" stroke="#0ea5e9" stroke-width="2" />
+                        <text x="360" y="170" fill="#0ea5e9" font-size="14">Malkhut / Keli (Coarsest Vessel - our 3D world)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Level 2: Tzimtzum, Resimu, and the Origin of Space</summary>
+                    <div class="details-content">
+                        <p>The foundational informational entity is <em>Or Ein Sof</em> (Infinite Light, pure desire to bestow). For anything outside it (anything finite) to exist, <a href="https://en.wikipedia.org/wiki/Tzimtzum" class="wiki-link" data-title="Tzimtzum" data-summary="Kabbalistic concept of radical 'contraction' of Divine light, creating a metaphysical vacuum." onclick="openSidePanel(event, this)">Tzimtzum</a> had to occur. This is an informational filter, not physical contraction. In the created "empty space," a memory imprint called <em>Resimu</em> remained (similar to quantum vacuum fluctuations), from which the system of ten informational dimensions (<a href="https://en.wikipedia.org/wiki/Sefirot" class="wiki-link" data-title="Sefirot" data-summary="Ten attributes, emanations, or archetypal structures through which the Infinite manifests." onclick="openSidePanel(event, this)">Sefirot</a>) arises.</p>
+                        <details class="level-3">
+                            <summary>Level 3: Equivalence of Form and Vessel Dynamics</summary>
+                            <div class="details-content">
+                                <p>What we call "matter" and our universe (<em>Malkhut</em>) is not a different substance. It is merely the coarsest form of the receiver—<em>Keli</em> (Vessel). The vessel is the structure of desire (ego). Kabbalah defines the law of <em>Chasva'at ha-Cura</em> (Equivalence of Form): We perceive the Light only to the extent our properties resonate with it. Because our vessel is tuned to selfish receiving, it is in maximum opposition to the Light (bestowing), creating immense resistance. This resistance manifests as our perception of solid matter, time pressure, and separation. By reprogramming the ego (via <em>Tikkun</em>), humans rebuild their vessel and change reality's graphical interface.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>3. East and Hermeticism: Deconstruction and Transmutation</h2>
+                <p>Various mystical traditions approached this "reality code" differently. Eastern philosophies aimed to dissolve it, while Western Hermeticism sought to hack it.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-en2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" /></marker></defs>
+                        <circle cx="150" cy="100" r="70" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <circle cx="150" cy="100" r="25" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+                        <text x="150" y="105" class="svg-text" font-size="12" text-anchor="middle">Human</text>
+                        <text x="150" y="45" fill="#e11d48" font-size="14" text-anchor="middle">Macrocosm (Universe)</text>
+                        <path d="M 240 100 L 360 100" fill="none" stroke="#10b981" stroke-width="3" marker-end="url(#arrow-en2)" />
+                        <text x="300" y="90" fill="#10b981" font-size="12" text-anchor="middle">Holographic Resonance</text>
+                        <path d="M 450 160 Q 520 100 450 40 Q 380 100 450 160 Z" fill="none" stroke="#fbbf24" stroke-width="3"/>
+                        <text x="450" y="105" class="svg-text" font-size="14" text-anchor="middle">Magnum Opus</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>Level 2: Unity of Consciousness and Maya (East)</summary>
+                    <div class="details-content">
+                        <p>The father of quantum mechanics, <a href="https://en.wikipedia.org/wiki/Erwin_Schr%C3%B6dinger" class="wiki-link" data-title="Erwin Schrödinger" data-summary="Creator of the Schrödinger equation. He solved quantum paradoxes by studying the Indian Upanishads." onclick="openSidePanel(event, this)">Erwin Schrödinger</a>, integrated ideas of Indian <a href="https://en.wikipedia.org/wiki/Advaita_Vedanta" class="wiki-link" data-title="Advaita Vedanta" data-summary="Hindu non-dualistic school teaching that Brahman is the only reality." onclick="openSidePanel(event, this)">Advaita Vedanta</a> to solve the observer paradox. A plurality of consciousnesses is impossible, otherwise the universe would collapse into chaos. Consciousness is singular. The perception of separate individuals is <em>Maya</em> (optical illusion). Buddhism complements this with <em>Sunyata</em> (emptiness) and <a href="https://en.wikipedia.org/wiki/Indra%27s_net" class="wiki-link" data-title="Indra's Net" data-summary="Buddhist metaphor of an infinite net where every jewel reflects all other jewels (fractal structure)." onclick="openSidePanel(event, this)">Indra's Net</a>, essentially an ancient description of quantum nonlocality.</p>
+                        <details class="level-3">
+                            <summary>Level 3: Hermetic Analogy and Magnum Opus (West)</summary>
+                            <div class="details-content">
+                                <p>While the East tried to turn off the screen, Western alchemy and <a href="https://en.wikipedia.org/wiki/Hermeticism" class="wiki-link" data-title="Hermeticism" data-summary="Ancient philosophical system centered on the principle of analogy and microcosmic mirroring of the macrocosm." onclick="openSidePanel(event, this)">Hermeticism</a> (stemming from the Emerald Tablet's <em>"As above, so below"</em>) created software macros. They assumed that if the universe is a hologram and the part contains the whole, changing the operator's internal state triggers a resonant response in the external physical field (synchronicity). The goal was the <em>Magnum Opus</em>—the complete transmutation of mind and matter to consciously shape the local interface.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 3 ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Close Level 2 ▲</button>
+                    </div>
+                </details>
+
+                <h2>4. Ontological Matrix: Comparative Analysis</h2>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>System / Criterion</th>
+                            <th>What is Matter?</th>
+                            <th>What is Consciousness?</th>
+                            <th>Space and Time</th>
+                            <th>Mechanism of Interaction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Materialism (17th-19th C.)</td>
+                            <td>Solid, independent entity (atom).</td>
+                            <td>Byproduct (epiphenomenon) of the brain.</td>
+                            <td>Absolute, fixed stage of reality.</td>
+                            <td>Physical force, mechanical local work.</td>
+                        </tr>
+                        <tr>
+                            <td>Quantum Physics (Bohm / Pribram)</td>
+                            <td>Explicate order; temporarily unfolded wave.</td>
+                            <td>Projection from the same implicate order as matter.</td>
+                            <td>Secondary construct (arises via decoding).</td>
+                            <td>Wave decoherence, quantum entanglement.</td>
+                        </tr>
+                        <tr>
+                            <td>Cognitive Realism (Hoffman)</td>
+                            <td>3D icon on the interface monitor.</td>
+                            <td>Primary substance; math network of agents.</td>
+                            <td>Coding medium (graphics card) of the desktop.</td>
+                            <td>Exchange of information and mathematical states.</td>
+                        </tr>
+                        <tr>
+                            <td>Kabbalah (Zohar)</td>
+                            <td>Coarsest layer of the Vessel (Keli / Malkhut).</td>
+                            <td>Or Ein Sof; the only objectively existing force.</td>
+                            <td>Result of radical light compression (Tzimtzum).</td>
+                            <td>Equivalence of form (match of inner properties).</td>
+                        </tr>
+                        <tr>
+                            <td>Eastern Non-dualism</td>
+                            <td>Maya; illusory fragmentation of the field.</td>
+                            <td>Brahman / Atman; dimensionless canvas.</td>
+                            <td>Illusion generated by the linear flow of mind.</td>
+                            <td>Silencing attention, negating borders (Neti-Neti).</td>
+                        </tr>
+                        <tr>
+                            <td>Western Hermeticism</td>
+                            <td>Densified spirit; mirror of operator's state.</td>
+                            <td>Nous; creative intelligence generating forms.</td>
+                            <td>Canvas for manifesting the law of analogy.</td>
+                            <td>Ritual resonance, alchemical transmutation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ================= HU VERZIA ================= -->
+            <div id="content-hu" class="lang-section">
+                <h2>1. A kvantum- és információs fordulat (Az objektivizmus vége)</h2>
+                <p>A nyugati tudomány sokáig a <a href="https://hu.wikipedia.org/wiki/Dualizmus_(filoz%C3%B3fia)" class="wiki-link" data-title="Karteziánus dualizmus" data-summary="René Descartes elmélete, amely szigorúan elválasztja a gondolkodó szubsztanciát az anyagi szubsztanciától." onclick="openSidePanel(event, this)">karteziánus dualizmuson</a> és a newtoni mechanizmuson alapult. Az univerzumot egy óriási óraműnek tekintették, ahol a szilárd objektumok megfigyeléstől függetlenül mozognak. Ez a modell az 1920-as években omlott össze. A <a href="https://hu.wikipedia.org/wiki/Koppenh%C3%A1gai_%C3%A9rtelmez%C3%A9s" class="wiki-link" data-title="Koppenhágai értelmezés" data-summary="A kvantummechanika alapvető értelmezése (Bohr, Heisenberg), amely szerint a rendszereknek nincsenek határozott tulajdonságai a mérés előtt." onclick="openSidePanel(event, this)">koppenhágai értelmezés</a> megmutatta, hogy nincs "megfigyelő egy láthatatlan üveg mögött". A mérés aktusa a valószínűségi hullámfüggvényt a valóság egyetlen pontjává omlasztja össze.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-hu1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" /></marker></defs>
+                        <rect x="50" y="50" width="150" height="100" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <text x="125" y="105" fill="#e11d48" font-size="14" text-anchor="middle">Tudatos ágensek hálózata</text>
+                        <text x="125" y="125" class="svg-dim-text" font-size="11" text-anchor="middle">(Tiszta információáramlás)</text>
+                        <path d="M 220 100 L 380 100" fill="none" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arrow-hu1)" />
+                        <text x="300" y="90" fill="#0ea5e9" font-size="12" text-anchor="middle">Evolúciós észlelési szűrő</text>
+                        <rect x="400" y="50" width="150" height="100" fill="none" class="svg-grid" stroke-width="2" rx="10"/>
+                        <circle cx="475" cy="90" r="15" fill="#10b981" />
+                        <text x="475" y="130" class="svg-text" font-size="14" text-anchor="middle">3D Interfész</text>
+                        <text x="475" y="145" class="svg-dim-text" font-size="11" text-anchor="middle">(A fizikai világ asztala)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>2. Szint: Interfész-elmélet (Donald Hoffman)</summary>
+                    <div class="details-content">
+                        <p>Ma ezt a fordulatot <a href="https://en.wikipedia.org/wiki/Donald_Hoffman" class="wiki-link" data-title="Donald Hoffman" data-summary="Matematikus és kognitív tudós. 'Fitness Beats Truth' tétele bizonyítja, hogy az evolúció nem az objektív valóság érzékelésére programozott minket." onclick="openSidePanel(event, this)">Donald Hoffman</a> kognitív tudós fejezte be. Bizonyította, hogy az esélye annak, hogy érzékszerveink a valóságot látják, pontosan nulla. Az evolúció a túlélést (fitness) jutalmazza, nem az igazságot. A fizikai tárgyak, a tér és az idő csupán ikonok egy <a href="https://hu.wikipedia.org/wiki/Felhaszn%C3%A1l%C3%B3i_fel%C3%BClet" class="wiki-link" data-title="Felhasználói interfész" data-summary="Grafikus felület, amely komplex bináris kódokat fordít le a felhasználó számára." onclick="openSidePanel(event, this)">felhasználói interfészen</a>.</p>
+                        <details class="level-3">
+                            <summary>3. Szint: Holonomikus agymodell és a Neumann-lánc</summary>
+                            <div class="details-content">
+                                <p>Ez a matematikai modell közvetlenül rezonál <a href="https://en.wikipedia.org/wiki/Karl_H._Pribram" class="wiki-link" data-title="Karl Pribram" data-summary="Neurofiziológus, aki felfedezte, hogy a memória holografikusan oszlik el az agyban." onclick="openSidePanel(event, this)">Karl Pribram</a> és <a href="https://hu.wikipedia.org/wiki/David_Bohm" class="wiki-link" data-title="David Bohm" data-summary="Kvantumfizikus, az implicit rend elméletének szerzője." onclick="openSidePanel(event, this)">David Bohm</a> munkásságával. Az agy hullámfrekvenciákat dolgoz fel és vetít ki a 3D világ holografikus illúziójaként. Ez megfelel a <a href="https://en.wikipedia.org/wiki/Von_Neumann%E2%80%93Wigner_interpretation" class="wiki-link" data-title="Neumann-lánc" data-summary="Gondolatkísérlet, amely szerint a hullámfüggvényt csak egy nem anyagi entitás, a 'tudat' omlaszthatja össze." onclick="openSidePanel(event, this)">Neumann-lánc</a> problémájának – a hullámfüggvényt csak a tudat omlaszthatja össze.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 3. Szint ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 2. Szint ▲</button>
+                    </div>
+                </details>
+
+                <h2>2. Kabbala (Zóhár és Luria) - A tudatszűrők építészete</h2>
+                <p>Míg a fizika lineáris gyorsítókkal jutott ezekre a következtetésekre, a <a href="https://hu.wikipedia.org/wiki/Kabbala" class="wiki-link" data-title="Kabbala" data-summary="Zsidó misztikus hagyomány, a teremtés belső szerkezetének megértésére fókuszál." onclick="openSidePanel(event, this)">Kabbala</a> ezt a struktúrát már évszázadokkal ezelőtt leírta az emberi észlelés mérnöki megközelítésével. A Kabbala a világot hierachikus kódként, szűrők kaszkádjaként látja.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="300" cy="30" r="20" fill="#fbbf24" />
+                        <text x="340" y="35" class="svg-text" font-size="14">Or Ein Sof (A Fény - Tiszta Tudat)</text>
+                        <path d="M 300 50 L 300 90" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <rect x="250" y="90" width="100" height="20" fill="#e11d48" opacity="0.8" />
+                        <text x="360" y="105" fill="#e11d48" font-size="14">Cimcum & Resimu (Tömörítés és Lenyomat)</text>
+                        <path d="M 300 110 L 300 150" fill="none" class="svg-grid" stroke-width="2" stroke-dasharray="4"/>
+                        <path d="M 270 150 L 330 150 L 320 180 L 280 180 Z" fill="none" stroke="#0ea5e9" stroke-width="2" />
+                        <text x="360" y="170" fill="#0ea5e9" font-size="14">Malhut / Keli (A legdurvább Edény - a 3D világunk)</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>2. Szint: Cimcum, Resimu és a tér eredete</summary>
+                    <div class="details-content">
+                        <p>Az alapvető információs entitás az <em>Or Ein Sof</em> (Végtelen Fény). Ahhoz, hogy bármi véges létezhessen, a <a href="https://en.wikipedia.org/wiki/Tzimtzum" class="wiki-link" data-title="Cimcum (Tzimtzum)" data-summary="Az isteni fény radikális 'összehúzódása' egy metafizikai vákuum létrehozása érdekében." onclick="openSidePanel(event, this)">Cimcum</a>-nak be kellett következnie. Ez egy információs szűrő. A létrejött "üres térben" maradt egy <em>Resimu</em> nevű memórialenyomat, amelyből a tíz információs dimenzió (<a href="https://hu.wikipedia.org/wiki/Szefir%C3%B3t" class="wiki-link" data-title="Szefirót" data-summary="Tíz attribútum vagy archetipikus struktúra." onclick="openSidePanel(event, this)">Szefirót</a>) rendszere ered.</p>
+                        <details class="level-3">
+                            <summary>3. Szint: Az alakok egyenértékűsége és az Edények dinamikája</summary>
+                            <div class="details-content">
+                                <p>Amit "anyagnak" nevezünk, az csak a vevő – a <em>Keli</em> (Edény) – legdurvább formája. A <em>Chasva'at ha-Cura</em> (Formák Egyenértékűsége) törvénye szerint a Fényt csak olyan mértékben érzékeljük, amilyen mértékben tulajdonságaink rezonálnak vele. Mivel edényünk önző befogadásra van hangolva, óriási ellenállást hoz létre a Fénnyel (adakozással) szemben, amit szilárd anyagként és időnyomásként érzékelünk.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 3. Szint ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 2. Szint ▲</button>
+                    </div>
+                </details>
+
+                <h2>3. Kelet és Hermetizmus: Dekonstrukció és Transzmutáció</h2>
+                <p>A keleti filozófiák e valóságkód feloldására törekedtek, míg a nyugati hermetizmus megpróbálta feltörni azt.</p>
+
+                <div class="graph-container">
+                    <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs><marker id="arrow-hu2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" /></marker></defs>
+                        <circle cx="150" cy="100" r="70" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4"/>
+                        <circle cx="150" cy="100" r="25" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+                        <text x="150" y="105" class="svg-text" font-size="12" text-anchor="middle">Ember</text>
+                        <text x="150" y="45" fill="#e11d48" font-size="14" text-anchor="middle">Makrokozmosz (Univerzum)</text>
+                        <path d="M 240 100 L 360 100" fill="none" stroke="#10b981" stroke-width="3" marker-end="url(#arrow-hu2)" />
+                        <text x="300" y="90" fill="#10b981" font-size="12" text-anchor="middle">Holografikus rezonancia</text>
+                        <path d="M 450 160 Q 520 100 450 40 Q 380 100 450 160 Z" fill="none" stroke="#fbbf24" stroke-width="3"/>
+                        <text x="450" y="105" class="svg-text" font-size="14" text-anchor="middle">Magnum Opus</text>
+                    </svg>
+                </div>
+
+                <details class="level-2">
+                    <summary>2. Szint: A tudat egysége és a Májá (Kelet)</summary>
+                    <div class="details-content">
+                        <p><a href="https://hu.wikipedia.org/wiki/Erwin_Schr%C3%B6dinger" class="wiki-link" data-title="Erwin Schrödinger" data-summary="A Schrödinger-egyenlet megalkotója, aki az indiai Upanisadok tanulmányozásával oldotta meg a kvantumparadoxonokat." onclick="openSidePanel(event, this)">Erwin Schrödinger</a> integrálta az <a href="https://hu.wikipedia.org/wiki/Advaita_v%C3%A9d%C3%A1nta" class="wiki-link" data-title="Advaita Védánta" data-summary="Hindu non-dualista iskola, amely szerint csak Brahman valóságos." onclick="openSidePanel(event, this)">Advaita Védánta</a> gondolatait a megfigyelő paradoxonának megoldására. A tudat csak egyetlen. Az elkülönültség érzése <em>Májá</em> (optikai csalódás). A buddhizmus ezt kiegészíti a <a href="https://en.wikipedia.org/wiki/Indra%27s_net" class="wiki-link" data-title="Indra Hálója" data-summary="Buddhista metafora egy végtelen hálóról, ahol minden ékkő tükrözi a többit (fraktál)." onclick="openSidePanel(event, this)">Indra Hálójával</a>, ami lényegében a kvantum-nonlokalitás ősi leírása.</p>
+                        <details class="level-3">
+                            <summary>3. Szint: Hermetikus analógia és Magnum Opus (Nyugat)</summary>
+                            <div class="details-content">
+                                <p>Míg Kelet a képernyő kikapcsolására törekedett, a nyugati <a href="https://hu.wikipedia.org/wiki/Hermetika" class="wiki-link" data-title="Hermetizmus" data-summary="Ősi filozófiai rendszer, melynek magja az analógia és a mikrokozmosz-makrokozmosz elve." onclick="openSidePanel(event, this)">Hermetizmus</a> (<em>"Amint fent, úgy lent"</em>) szoftveres makrókat hozott létre. Feltételezték, hogy ha az univerzum holografikus, az operátor belső állapotának megváltozása rezonanciát vált ki a fizikai mezőben. A cél a <em>Magnum Opus</em> volt – az elme és az anyag teljes transzmutációja.</p>
+                                <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 3. Szint ▲</button>
+                            </div>
+                        </details>
+                        <button class="close-btn" onclick="this.closest('details').removeAttribute('open');">Bezár 2. Szint ▲</button>
+                    </div>
+                </details>
+
+                <h2>4. Ontológiai Mátrix: Összehasonlító Elemzés</h2>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Rendszer / Kritérium</th>
+                            <th>Mi az Anyag?</th>
+                            <th>Mi a Tudat?</th>
+                            <th>Tér és Idő</th>
+                            <th>Interakciós mechanizmus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Materializmus (17-19. sz.)</td>
+                            <td>Szilárd, független entitás (atom).</td>
+                            <td>Az agy mellékterméke (epifenomén).</td>
+                            <td>Abszolút, rögzített színpad.</td>
+                            <td>Fizikai erő, mechanikus lokális munka.</td>
+                        </tr>
+                        <tr>
+                            <td>Kvantumfizika (Bohm / Pribram)</td>
+                            <td>Explicit rend; ideiglenesen kibontott hullám.</td>
+                            <td>Kivetülés ugyanabból az implicit rendből.</td>
+                            <td>Másodlagos konstrukció (dekódolással jön létre).</td>
+                            <td>Hullám-dekoherencia, kvantum-összefonódás.</td>
+                        </tr>
+                        <tr>
+                            <td>Kognitív Realizmus (Hoffman)</td>
+                            <td>3D ikon az interfész monitorán.</td>
+                            <td>Elsődleges szubsztancia; ágensek hálózata.</td>
+                            <td>Az asztal kódolási közege (videokártya).</td>
+                            <td>Információ- és matematikai állapotcsere.</td>
+                        </tr>
+                        <tr>
+                            <td>Kabbala (Zóhár)</td>
+                            <td>Az Edény legdurvább rétege (Keli / Malhut).</td>
+                            <td>Or Ein Sof; az egyetlen létező erő.</td>
+                            <td>A fény radikális tömörítésének (Cimcum) eredménye.</td>
+                            <td>Formák egyenértékűsége (belső rezonancia).</td>
+                        </tr>
+                        <tr>
+                            <td>Keleti Non-dualizmus</td>
+                            <td>Májá; a mező illuzórikus töredezettsége.</td>
+                            <td>Brahman / Átman; dimenzió nélküli vászon.</td>
+                            <td>Az elme lineáris áramlása által generált illúzió.</td>
+                            <td>Figyelem elcsendesítése, határok tagadása (Neti-Neti).</td>
+                        </tr>
+                        <tr>
+                            <td>Nyugati Hermetizmus</td>
+                            <td>Sűrűsödött szellem; az operátor állapotának tükre.</td>
+                            <td>Nous; formákat generáló teremtő intelligencia.</td>
+                            <td>Vászon az analógia törvényének megnyilvánulásához.</td>
+                            <td>Rituális rezonancia, alkímiai transzmutáció.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="footer-note">
+            <span class="lang-content" data-lang="sk">Tento artefakt vygeneroval syntetický inžinier / exokortex-gemini (Verzia Exokortex-Ontology 2.0). Nasadené v rámci iteratívneho protokolu.</span>
+            <span class="lang-content" data-lang="en">This artifact was generated by a synthetic engineer / exocortex-gemini (Version Exocortex-Ontology 2.0). Deployed under iterative protocol.</span>
+            <span class="lang-content" data-lang="hu">Ezt az artefaktumot egy szintetikus mérnök / exocortex-gemini generálta (Verzió Exocortex-Ontology 2.0). Iteratív protokoll alatt telepítve.</span>
+        </div>
+    </div>
+
+    <!-- Bočný panel (Split Screen) -->
+    <div id="side-panel">
+        <button class="close-panel-btn" onclick="closeSidePanel()">✖ Zavrieť panel</button>
+        <h3 id="side-title">Názov</h3>
+        <p id="side-summary">Zhrnutie pojmu.</p>
+        <a id="side-link" href="#" target="_blank" class="external-btn">Otvoriť celý článok v novom okne ↗</a>
+    </div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    function setLang(lang) {
+        document.documentElement.setAttribute('lang', lang);
+        localStorage.setItem('lang', lang);
+        
+        document.querySelectorAll('.top-nav .lang-btn').forEach(btn => btn.classList.remove('active'));
+        const activeNavBtn = document.getElementById('btn-' + lang);
+        if(activeNavBtn) activeNavBtn.classList.add('active');
+
+        document.querySelectorAll('.lang-section').forEach(section => section.classList.remove('active'));
+        const activeSection = document.getElementById('content-' + lang);
+        if(activeSection) activeSection.classList.add('active');
+        
+        const closeBtn = document.querySelector('.close-panel-btn');
+        if(lang === 'sk') closeBtn.innerText = '✖ Zavrieť panel';
+        if(lang === 'en') closeBtn.innerText = '✖ Close panel';
+        if(lang === 'hu') closeBtn.innerText = '✖ Panel bezárása';
+        
+        const externalLinkBtn = document.getElementById('side-link');
+        if(lang === 'sk') externalLinkBtn.innerText = 'Otvoriť celý článok v novom okne ↗';
+        if(lang === 'en') externalLinkBtn.innerText = 'Open full article in new window ↗';
+        if(lang === 'hu') externalLinkBtn.innerText = 'Teljes cikk megnyitása új ablakban ↗';
+    }
+
+    const savedLang = localStorage.getItem('lang') || 'sk';
+    setLang(savedLang);
+
+    function openSidePanel(event, element) {
+        event.preventDefault(); 
+        const title = element.getAttribute('data-title');
+        const summary = element.getAttribute('data-summary');
+        const url = element.getAttribute('href');
+
+        document.getElementById('side-title').innerText = title;
+        document.getElementById('side-summary').innerText = summary;
+        document.getElementById('side-link').setAttribute('href', url);
+
+        document.getElementById('app-wrapper').classList.add('split-active');
+    }
+
+    function closeSidePanel() {
+        document.getElementById('app-wrapper').classList.remove('split-active');
+    }
+</script>
+</body>
+</html>
